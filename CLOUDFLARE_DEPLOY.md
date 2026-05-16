@@ -81,6 +81,21 @@ npm run verify:cloudflare
 npm run verify:cloudflare:pages
 ```
 
+## Cloudflare Pages Git Settings
+
+When deploying from GitHub, create a **Pages** project, not a standalone Worker project.
+
+Use these settings:
+
+```text
+Framework preset: None
+Build command: npm run build
+Build output directory: public
+Root directory: /
+```
+
+Do not use `npm run cf:deploy` as the Cloudflare Dashboard build command. That command is only for deploying from your own terminal.
+
 ## Deploy
 
 ```powershell

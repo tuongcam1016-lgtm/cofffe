@@ -4,6 +4,7 @@
   "description": "Fullstack clone demo of taynguyensoul.vn with a static frontend and Node backend APIs.",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/cloudflare-build-check.js",
     "start": "node server.js",
     "dev": "node server.js",
     "verify": "node scripts/verify.js",
