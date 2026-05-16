@@ -1,0 +1,104 @@
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const { pathToFileURL } = require("url");
+
+const root = path.resolve(__dirname, "..");
+const workerSource = path.join(root, "public", "_worker.js");
+const tempModule = path.join(os.tmpdir(), `tng-worker-${Date.now()}.mjs`);
+
+class MemoryKV {
+  constructor() {
+    this.store = new Map();
+  }
+
+  async get(key, type) {
+    const value = this.store.get(key);
+    if (value == null) return null;
+    return type === "json" ? JSON.parse(value) : value;
+  }
+
+  async put(key, value) {
+    this.store.set(key, value);
+  }
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+async function main() {
+  fs.copyFileSync(workerSource, tempModule);
+  const worker = (await import(`${pathToFileURL(tempModule).href}?v=${Date.now()}`)).default;
+  const env = {
+    ORDERS_KV: new MemoryKV(),
+    ASSETS: {
+      fetch: async (request) => new Response(`asset:${new URL(request.url).pathname}`, {
+        status: 200,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      }),
+    },
+  };
+
+  const orderPayload = {
+    customer: {
+      name: "Khach test",
+      phone: "0900000000",
+      address: "1 Nguyen Hue, TP. Ho Chi Minh",
+    },
+    items: [
+      {
+        title: "Ca Phe Nguyen Chat Signature",
+        price: 460000,
+        quantity: 1,
+        options: ["1kg(2 goi 500g)", "Xay san", "Pha phin"],
+      },
+    ],
+    total: 460000,
+  };
+
+  const postResponse = await worker.fetch(new Request("https://local.test/api/orders", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(orderPayload),
+  }), env, {});
+  assert(postResponse.status === 201, `POST /api/orders expected 201, got ${postResponse.status}`);
+  const postJson = await postResponse.json();
+  assert(postJson.ok === true, "POST /api/orders did not return ok=true");
+  assert(postJson.id && postJson.order && postJson.order.id === postJson.id, "POST /api/orders did not return saved order id");
+
+  const getResponse = await worker.fetch(new Request("https://local.test/api/orders"), env, {});
+  assert(getResponse.status === 200, `GET /api/orders expected 200, got ${getResponse.status}`);
+  const getJson = await getResponse.json();
+  assert(Array.isArray(getJson.orders), "GET /api/orders did not return orders array");
+  assert(getJson.orders.length === 1, `GET /api/orders expected 1 order, got ${getJson.orders.length}`);
+
+  const adminResponse = await worker.fetch(new Request("https://local.test/admin/orders"), env, {});
+  assert(adminResponse.status === 200, `GET /admin/orders expected 200, got ${adminResponse.status}`);
+  const adminHtml = await adminResponse.text();
+  assert(adminHtml.includes(postJson.id), "Admin page does not include saved order id");
+  assert(adminHtml.includes("Đơn hàng Cloudflare"), "Admin page missing title text");
+
+  const assetResponse = await worker.fetch(new Request("https://local.test/ca-phe/"), env, {});
+  assert(assetResponse.status === 200, `Static fallback expected 200, got ${assetResponse.status}`);
+
+  console.log(JSON.stringify({
+    ok: true,
+    tested: ["POST /api/orders", "GET /api/orders", "GET /admin/orders", "static asset fallback"],
+    orderId: postJson.id,
+    storage: postJson.savedTo,
+  }, null, 2));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+}).finally(() => {
+  try {
+    fs.unlinkSync(tempModule);
+  } catch (_) {
+    // Temp cleanup is best-effort only.
+  }
+});
