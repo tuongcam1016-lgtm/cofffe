@@ -1,0 +1,50 @@
+{
+  "updatedAt": "2026-05-15T08:23:30.000Z",
+  "summary": "Deep clone pass completed against sitemap, product pages, provided screenshots, and browser verification.",
+  "implemented": [
+    "Site inventory crawler for sitemap/menu/footer/internal public links.",
+    "Product media crawler with per-product image/video gallery data.",
+    "Product detail gallery with vertical thumbnails, image/video slides, inline autoplay video, and variant/cart controls.",
+    "Product detail lower content: service strip, review article, feature/spec table, review summary, comments, related products.",
+    "Category page hero, tabs, toolbar, product grid, guide banner, and long copy block.",
+    "Cart/checkout page with coupon panel, cart table, billing form, order review, COD/bank options, and backend submit.",
+    "Backend order persistence to data/orders.json plus /api/orders and /admin/orders.",
+    "Internal link handling to avoid redirects back to taynguyensoul.vn."
+  ],
+  "crawl": {
+    "siteInventoryUrls": 241,
+    "siteInventoryCounts": {
+      "page": 74,
+      "blog": 42,
+      "category": 7,
+      "policy": 7,
+      "commerce": 4,
+      "product": 107
+    },
+    "productMediaAttemptedUrls": 107,
+    "productMediaUniqueSlugs": 99,
+    "productMediaErrors": 0,
+    "totalProductVideosCaptured": 202
+  },
+  "remainingGaps": [
+    "A true pixel-perfect clone for all 241 public URLs is not complete; non-core pages still use reusable local templates unless individually implemented.",
+    "Blog/policy/contact pages are routed locally, but many article bodies are summarized instead of exact full source page content.",
+    "WooCommerce account login, payment gateway, shipping-rate rules, province/ward dynamic data, coupons, and real order emails are demo implementations only.",
+    "Some YouTube iframe overlays cannot be fully hidden by code due to YouTube player restrictions; native mp4 videos render cleaner.",
+    "The original site has many third-party floating widgets and external review embeds; the clone uses static/local equivalents to keep it functional offline."
+  ],
+  "verification": {
+    "report": "C:/tmp/tng-deep-verify/report.json",
+    "screenshotsDirectory": "C:/tmp/tng-deep-verify",
+    "latestLocalChecks": {
+      "productThumbs": 22,
+      "productVideoThumbs": 6,
+      "inlineVideo": 1,
+      "variantSelected": "500g -29%",
+      "cartDrawerOpen": 1,
+      "checkoutItems": 1,
+      "checkoutStatus": "Đã gửi đơn thành công",
+      "externalInternalLinks": 0
+    }
+  }
+}
