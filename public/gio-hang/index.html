@@ -1,0 +1,133 @@
+<!doctype html>
+    <html lang="vi">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Giỏ hàng - TaynguyenSoul Clone</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="stylesheet" href="/page-styles.css">
+        <link rel="stylesheet" href="/clone-bridge.css">
+      </head>
+      <body class="soul-page">
+        
+    <div class="soul-promo-bar">CỐI XAY CÀ PHÊ NÂNG CẤP TRẢI NGHIỆM <a href="/may-pha-ca-phe-cam-tay/">Mua ngay →</a></div>
+    <header class="soul-header">
+      <button class="mobile-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="soul-nav">
+        <a class="" href="/ca-phe/">Cà phê</a>
+        <a class="" href="/may-pha-ca-phe-cam-tay/">Máy pha cà phê cầm tay</a>
+        <a class="" href="/dung-cu-pha-ca-phe/">Dụng cụ pha cà phê</a>
+      </nav>
+      <a class="soul-logo" href="/">
+        <img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul">
+      </a>
+      <nav class="soul-nav right">
+        <a class="" href="/ve-taynguyensoul/">Về TaynguyenSoul</a>
+        <a class="" href="/blog-ca-phe/">Blog</a>
+        <a class="" href="/lien-he/">Liên hệ</a>
+        <a href="/tai-khoan/" aria-label="Tài khoản">♡</a>
+        <a class="soul-cart-link" href="/gio-hang/">0</a>
+        <a href="/ca-phe/" aria-label="Tìm kiếm">⌕</a>
+      </nav>
+    </header>
+  
+        
+    <main class="checkout-page">
+      <section class="coupon-panel">
+        <div class="coupon-head">Áp dụng mã giảm giá (3) chỉ được áp dụng 1</div>
+        <div class="coupon-row">
+          <div class="coupon-card"><strong>Coupon</strong><span>Tặng thìa pha năng cho đơn từ 500k</span><code>MUONG1TANG1</code></div>
+          <div class="coupon-card"><strong>Coupon</strong><span>Tặng bình giữ nhiệt cho đơn từ 1kg</span><code>FREETBOTTLE</code></div>
+          <div class="coupon-card"><strong>Coupon</strong><span>Tặng bình giữ nhiệt màu đỏ cho đơn từ 2kg</span><code>FREEREDBOTTLE</code></div>
+        </div>
+      </section>
+
+      <section class="cart-block">
+        <h1><span>1</span> Giỏ hàng</h1>
+        <div class="cart-table">
+          <div class="cart-table-head"><span>Sản phẩm</span><span>Giá</span><span>Số lượng</span><span>Tạm tính</span></div>
+          <div id="checkoutItems" class="checkout-items"></div>
+        </div>
+        <label class="gift-line"><input type="checkbox"> Lấy bao bì loại Zip thay vì túi giấy?</label>
+        <p><em>Có 6 người đang thêm cùng sản phẩm giống bạn vào giỏ hàng.</em></p>
+        <div class="coupon-entry"><span>Bạn có mã giảm giá? Nhập vào ô bên dưới để được ưu đãi nhé!</span><input placeholder="Mã ưu đãi"><button>Áp dụng</button></div>
+      </section>
+
+      <section class="billing-block">
+        <h2><span>2</span> Thông tin thanh toán</h2>
+        <form id="checkoutPageForm" class="checkout-form">
+          <label>Số điện thoại *<input name="phone" required placeholder="Số điện thoại của bạn"></label>
+          <label>Địa chỉ email (tùy chọn)<input name="email" placeholder="Email của bạn"></label>
+          <label>Họ và tên *<input name="name" required placeholder="Họ tên của bạn"></label>
+          <label>Tỉnh/Thành phố *<select name="city" required><option>TP. Hồ Chí Minh</option></select></label>
+          <label>Quận/Huyện *<select name="district" required><option value="">Chọn quận huyện</option></select></label>
+          <label>Xã/Phường *<select name="ward" required><option value="">Chọn xã/phường</option></select></label>
+          <label class="full">Địa chỉ *<input name="address" required placeholder="Ví dụ: Số 20, ngõ 90"></label>
+          <label class="full checkout-check"><input type="checkbox" name="shipDifferent"> Giao hàng tới địa chỉ khác?</label>
+          <label class="full">Ghi chú đơn hàng<textarea name="note" placeholder="Ghi chú về đơn hàng, cà phê Pha Máy, Moka Pot, Cold Brew..."></textarea></label>
+          <label class="full checkout-check"><input type="checkbox" name="officeHours"> Giao trong giờ hành chính 8h-17h (tùy chọn)</label>
+        </form>
+      </section>
+
+      <section class="order-review">
+        <h2>Đơn hàng của bạn</h2>
+        <div id="checkoutReview" class="checkout-review-list"></div>
+        <div class="order-line"><span>Tạm tính</span><strong id="checkoutSubtotal">0đ</strong></div>
+        <div class="order-line coupon-applied"><span>Mã giảm giá : onghut1tang1</span><strong>-0đ <button type="button">[Xóa]</button></strong></div>
+        <div class="order-line"><span>Shipping</span><strong>Miễn phí</strong></div>
+        <div class="order-line total"><span>Tổng</span><strong id="checkoutGrandTotal">0đ</strong></div>
+        <label><input type="radio" name="checkout-shipping" value="fast-hcm"> Hỏa tốc trong ngày nội thành HCM (đặt trước 12h, sau 12h giao ngày hôm sau) - Lưu ý: CẦN THANH TOÁN TRƯỚC - 35.000đ</label>
+        <label><input type="radio" name="checkout-shipping" value="free-ghn" checked> Ưu đãi miễn phí ship (Shop gửi GHTK hoặc GHN)</label>
+        <label><input type="radio" name="checkout-payment" value="cod" checked> Trả tiền mặt khi nhận hàng (COD)</label>
+        <label><input type="radio" name="checkout-payment" value="bank"> Chuyển khoản ngân hàng 24/7 VietQR (Quét QR Code, Momo QR, Zalopay QR)</label>
+        <p class="checkout-note">Nếu bạn không hài lòng với sản phẩm của chúng tôi trong 15 ngày, hãy truy cập trang Tài khoản và bấm "trả lại".</p>
+        <button id="checkoutPageSubmit" class="place-order" type="button">Đặt hàng</button>
+        <div id="checkoutPageStatus" class="checkout-page-status"></div>
+      </section>
+    </main>
+  
+        
+    <footer class="soul-footer">
+      <div class="soul-footer-contact">
+        <img class="soul-footer-logo" src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-300.png" alt="TaynguyenSoul">
+        <div class="footer-contact-pill"><span>☎</span><small>Hotline</small><strong>0931.863.826</strong></div>
+        <div class="footer-contact-pill"><span>✉</span><small>Email</small><strong>soul@taynguyensoul.vn</strong></div>
+        <div class="footer-socials" aria-label="Social">
+          <span>f</span><span>◎</span><span>𝕏</span><span>▶</span><span>♬</span><span>in</span><span>▶</span>
+        </div>
+      </div>
+      <div class="soul-footer-inner">
+        <div>
+          <h3>ĐỊA CHỈ LIÊN HỆ</h3>
+          <p>TP.HCM: 99 Tô Hiệu (chỉ Ship Hàng Online)</p>
+          <p><em>Kho hàng xử lý đơn online, khách có thể đặt online hoặc liên hệ nhà Soul sẽ ship tận nhà.</em></p>
+          <p><em>Nếu Quý Khách cần gấp nhà Soul có hỗ trợ giao hàng 2h với Ahamove trong HCM - Liên hệ Hotline: 0931.863.826</em></p>
+          <p>Taynguyen Soul lắng nghe bạn! Chúng tôi luôn trân trọng mọi đóng góp nhằm được cải thiện dịch vụ.</p>
+          <a class="footer-feedback" href="/lien-he/">GÓP Ý KIẾN</a>
+        </div>
+        <div>
+          <h3>CHÍNH SÁCH</h3>
+          <p><a href="/ve-taynguyensoul/">Về TaynguyenSoul</a></p>
+          <p><a href="/chinh-sach-doi-hang/">Chính sách đổi trả</a></p>
+          <p><a href="/chinh-sach-giao-hang/">Chính sách giao hàng</a></p>
+          <p><a href="/chinh-sach-bao-mat-2/">Chính sách bảo mật</a></p>
+          <p><a href="/thong-tin-ve-xuong-rang/">Thông tin về xưởng rang</a></p>
+        </div>
+        <div>
+          <h3>TRUY CẬP NHANH</h3>
+          <p><a href="/hoi-dap/">Hỏi đáp</a></p>
+          <p><a href="/lien-he/">Liên hệ</a></p>
+          <p><a href="/tai-khoan/">Tài khoản</a></p>
+        </div>
+        <div>
+          <h3>Taynguyen Soul trên MXH</h3>
+          <p><span class="footer-badge">DMCA PROTECTED</span></p>
+          <p><span class="footer-badge light">SecureCheckout Verified</span></p>
+        </div>
+      </div>
+      <div class="soul-footer-copy">Copyright 2026 © TaynguyenSoul.vn | Made with ♡ by TaynguyenSoul Team</div>
+    </footer>
+  
+        <script src="/clone-bridge.js"></script>
+      </body>
+    </html>
