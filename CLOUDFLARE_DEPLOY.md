@@ -1,6 +1,6 @@
 # Cloudflare Pages Deploy
 
-This project is prepared for Cloudflare Pages with a Pages advanced Worker at `public/_worker.js`.
+This project is prepared for Cloudflare Pages or Workers Static Assets with a Worker at `public/_worker.js`.
 
 ## What Runs Where
 
@@ -17,6 +17,18 @@ This project is prepared for Cloudflare Pages with a Pages advanced Worker at `p
   - `GET /admin/orders`
 
 Orders are stored in Cloudflare KV binding `ORDERS_KV`.
+
+`wrangler.toml` is configured with:
+
+```toml
+main = "public/_worker.js"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+```
+
+This prevents the Cloudflare Dashboard error that asks for `main = "src/index.ts"` or `[assets] directory = "./dist"`.
 
 ## One-Time Cloudflare Setup
 
@@ -95,6 +107,14 @@ Root directory: /
 ```
 
 Do not use `npm run cf:deploy` as the Cloudflare Dashboard build command. That command is only for deploying from your own terminal.
+
+If your Cloudflare project is a **Worker** project instead of a **Pages** project, keep the same repository and use this build command:
+
+```text
+npm run build
+```
+
+The deploy step will read `wrangler.toml` and upload `public` as static assets with `public/_worker.js` as the Worker entry.
 
 ## Deploy
 

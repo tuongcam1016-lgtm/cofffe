@@ -1,8 +1,7 @@
 name = "taynguyensoul-clone"
 compatibility_date = "2026-05-16"
-pages_build_output_dir = "./public"
+main = "public/_worker.js"
 
-[[kv_namespaces]]
-binding = "ORDERS_KV"
-id = "REPLACE_WITH_PRODUCTION_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+[assets]
+directory = "./public"
+binding = "ASSETS"
