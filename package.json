@@ -1,0 +1,29 @@
+{
+  "name": "taynguyensoul-clone",
+  "version": "1.0.0",
+  "description": "Fullstack clone demo of taynguyensoul.vn with a static frontend and Node backend APIs.",
+  "main": "server.js",
+  "scripts": {
+    "build": "node scripts/cloudflare-build-check.js",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "verify": "node scripts/verify.js",
+    "verify:cloudflare": "node scripts/verify-cloudflare-worker.js",
+    "verify:cloudflare:pages": "node scripts/verify-cloudflare-pages.js",
+    "audit:production": "node scripts/audit-production.js",
+    "prerender:cloudflare": "node scripts/prerender-cloudflare.js",
+    "cf:dev": "wrangler pages dev public --kv ORDERS_KV",
+    "cf:deploy": "wrangler pages deploy public --project-name taynguyensoul-clone"
+  },
+  "keywords": [
+    "coffee",
+    "ecommerce",
+    "clone"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.60.0",
+    "wrangler": "^4.92.0"
+  }
+}
