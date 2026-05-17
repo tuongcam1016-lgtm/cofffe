@@ -18,6 +18,8 @@ This project is prepared for Cloudflare Pages or Workers Static Assets with a Wo
 
 Orders are stored in Cloudflare KV binding `ORDERS_KV`.
 
+Admin order data is protected. Add a Worker variable/secret named `ADMIN_TOKEN`; use that value as the password at `/admin/orders`. Customers can submit orders, but they cannot read `/api/orders` or the admin page without this token.
+
 `wrangler.toml` is configured with:
 
 ```toml
@@ -85,6 +87,18 @@ Open the URL shown by Wrangler and test:
 - `/gio-hang/`
 - `POST /api/orders`
 - `/admin/orders`
+
+For deployed Cloudflare, configure these bindings/variables:
+
+```text
+KV namespace binding:
+Name: ORDERS_KV
+Value: ORDERS_KV
+
+Variable/secret:
+Name: ADMIN_TOKEN
+Value: your-strong-admin-password
+```
 
 Automated checks:
 

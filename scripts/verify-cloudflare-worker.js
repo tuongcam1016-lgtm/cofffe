@@ -1,4 +1,4 @@
-const fs = require("fs");
+﻿const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
@@ -33,6 +33,7 @@ async function main() {
   fs.copyFileSync(workerSource, tempModule);
   const worker = (await import(`${pathToFileURL(tempModule).href}?v=${Date.now()}`)).default;
   const env = {
+    ADMIN_TOKEN: "test-admin-token",
     ORDERS_KV: new MemoryKV(),
     ASSETS: {
       fetch: async (request) => new Response(`asset:${new URL(request.url).pathname}`, {
@@ -69,24 +70,34 @@ async function main() {
   assert(postJson.ok === true, "POST /api/orders did not return ok=true");
   assert(postJson.id && postJson.order && postJson.order.id === postJson.id, "POST /api/orders did not return saved order id");
 
-  const getResponse = await worker.fetch(new Request("https://local.test/api/orders"), env, {});
+  const publicGetResponse = await worker.fetch(new Request("https://local.test/api/orders"), env, {});
+  assert(publicGetResponse.status === 401, `Public GET /api/orders expected 401, got ${publicGetResponse.status}`);
+
+  const getResponse = await worker.fetch(new Request("https://local.test/api/orders", {
+    headers: { authorization: "Bearer test-admin-token" },
+  }), env, {});
   assert(getResponse.status === 200, `GET /api/orders expected 200, got ${getResponse.status}`);
   const getJson = await getResponse.json();
   assert(Array.isArray(getJson.orders), "GET /api/orders did not return orders array");
   assert(getJson.orders.length === 1, `GET /api/orders expected 1 order, got ${getJson.orders.length}`);
 
-  const adminResponse = await worker.fetch(new Request("https://local.test/admin/orders"), env, {});
+  const publicAdminResponse = await worker.fetch(new Request("https://local.test/admin/orders"), env, {});
+  assert(publicAdminResponse.status === 401, `Public GET /admin/orders expected 401, got ${publicAdminResponse.status}`);
+
+  const adminResponse = await worker.fetch(new Request("https://local.test/admin/orders", {
+    headers: { cookie: "admin_session=test-admin-token" },
+  }), env, {});
   assert(adminResponse.status === 200, `GET /admin/orders expected 200, got ${adminResponse.status}`);
   const adminHtml = await adminResponse.text();
   assert(adminHtml.includes(postJson.id), "Admin page does not include saved order id");
-  assert(adminHtml.includes("Đơn hàng Cloudflare"), "Admin page missing title text");
+  assert(adminHtml.includes("Quản lý đơn hàng"), "Admin page missing title text");
 
   const assetResponse = await worker.fetch(new Request("https://local.test/ca-phe/"), env, {});
   assert(assetResponse.status === 200, `Static fallback expected 200, got ${assetResponse.status}`);
 
   console.log(JSON.stringify({
     ok: true,
-    tested: ["POST /api/orders", "GET /api/orders", "GET /admin/orders", "static asset fallback"],
+    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "static asset fallback"],
     orderId: postJson.id,
     storage: postJson.savedTo,
   }, null, 2));

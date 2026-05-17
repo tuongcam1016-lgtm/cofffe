@@ -680,7 +680,7 @@
           <strong>Đã gửi đơn thành công</strong>
           <span>Mã đơn: ${escapeHtml(order.id || payload.id)}</span>
           <span>Tổng tiền: ${currency.format(order.total || payload.total || 0)}</span>
-          <a href="${escapeHtml(payload.viewUrl || "/admin/orders")}" target="_blank" rel="noopener">Xem đơn trong backend</a>
+          <span>Chúng tôi sẽ liên hệ xác nhận đơn trong thời gian sớm nhất.</span>
         `;
       }
       showToast(`Đã gửi đơn ${order.id || payload.id}`);
@@ -749,7 +749,7 @@
         <strong>Đã gửi đơn thành công</strong>
         <span>Mã đơn: ${escapeHtml(order.id || payload.id)}</span>
         <span>Tổng tiền: ${currency.format(order.total || payload.total || 0)}</span>
-        <a href="${escapeHtml(payload.viewUrl || "/admin/orders")}" target="_blank" rel="noopener">Xem đơn trong backend</a>
+        <span>Chúng tôi sẽ liên hệ xác nhận đơn trong thời gian sớm nhất.</span>
       `;
       showToast(`Đã gửi đơn ${order.id || payload.id}`);
     } catch (error) {
