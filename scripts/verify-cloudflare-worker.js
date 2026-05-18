@@ -90,14 +90,31 @@ async function main() {
   assert(adminResponse.status === 200, `GET /admin/orders expected 200, got ${adminResponse.status}`);
   const adminHtml = await adminResponse.text();
   assert(adminHtml.includes(postJson.id), "Admin page does not include saved order id");
-  assert(adminHtml.includes("Quản lý đơn hàng"), "Admin page missing title text");
+  assert(adminHtml.includes("Seller Center"), "Admin page missing seller center UI");
+
+  const csvResponse = await worker.fetch(new Request("https://local.test/api/orders.csv", {
+    headers: { authorization: "Bearer test-admin-token" },
+  }), env, {});
+  assert(csvResponse.status === 200, `GET /api/orders.csv expected 200, got ${csvResponse.status}`);
+  const csvText = await csvResponse.text();
+  assert(csvText.includes(postJson.id), "CSV export does not include saved order id");
+
+  const statusForm = new FormData();
+  statusForm.set("id", postJson.id);
+  statusForm.set("status", "processing");
+  const statusResponse = await worker.fetch(new Request("https://local.test/api/orders/status", {
+    method: "POST",
+    headers: { cookie: "admin_session=test-admin-token" },
+    body: statusForm,
+  }), env, {});
+  assert(statusResponse.status === 302, `POST /api/orders/status expected 302, got ${statusResponse.status}`);
 
   const assetResponse = await worker.fetch(new Request("https://local.test/ca-phe/"), env, {});
   assert(assetResponse.status === 200, `Static fallback expected 200, got ${assetResponse.status}`);
 
   console.log(JSON.stringify({
     ok: true,
-    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "static asset fallback"],
+    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "CSV export", "status update", "static asset fallback"],
     orderId: postJson.id,
     storage: postJson.savedTo,
   }, null, 2));
