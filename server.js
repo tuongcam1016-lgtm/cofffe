@@ -534,7 +534,7 @@ function stableProductIndex(product, modulo) {
 function productContentProfile(product) {
   const text = `${product.slug || ""} ${product.name || ""} ${product.category || ""}`.toLowerCase();
   const isBrewingGear = /soriso|máy|may|pha cà phê|pha ca phe|timemore|ấm|am |kettle|grinder|cối|coi|dụng cụ|dung-cu/.test(text);
-  const isPlantCare = /nông|nong|phân bón|phan-bon|rễ cây|re-cay|vàng lá|vang-la|cây trồng|cay-trong|thuốc bảo vệ|thuoc-bao-ve|vật tư nông|vat-tu-nong|hữu cơ|huu-co|npk|vi sinh|bệnh cây|benh-cay|sâu bệnh|sau-benh|tưới cây|tuoi-cay|phun xịt|phun-xit/.test(text);
+  const isPlantCare = /nông|nong|phân|phan|bón|bon|rễ|re |rễ-|re-|vàng lá|vang-la|cây trồng|cay-trong|thuốc|thuoc|vật tư|vat-tu|hữu cơ|huu-co|npk|vi sinh|bệnh|benh|sâu|sau|rầy|ray|nhện|nhen|tưới|tuoi|phun|xịt|xit|kẽm|kem|canxi|bo|humic|fulvic|amino|trái|trai|hoa|đọt|dot|sầu riêng|sau-rieng/.test(text);
   const coffeeProfiles = [
     {
       articleTitle: "Gu pha phin đậm vị, hậu ngọt",
@@ -615,29 +615,174 @@ function productContentProfile(product) {
       affiliate: ["Chia sẻ để nhận 42.000đ", "4% hoa hồng"]
     }
   ];
-  const plantProfiles = [
-    {
-      articleTitle: "Giải pháp chăm cây theo từng giai đoạn",
-      articleBody: "Nội dung này được tách riêng cho nhóm vật tư nông nghiệp để người mua thấy rõ công dụng, cách dùng và tình huống nên sử dụng thay vì dùng chung một mô tả.",
-      quote: "Ưu tiên dùng đúng liều, đúng thời điểm và theo dõi phản ứng của cây sau mỗi lần xử lý.",
+  const plantProfiles = {
+    root: {
+      articleTitle: "Phục hồi rễ, cải tạo đất và giảm vàng lá",
+      articleBody: "Nhóm sản phẩm này phù hợp cho vườn sau thu hoạch, cây suy yếu, rễ kém hấp thu hoặc có dấu hiệu vàng lá. Nội dung được cấu hình theo nguồn VTNN Đạ Tẻh với trọng tâm là phục hồi bộ rễ, giải độc đất và tăng khả năng hút dinh dưỡng.",
+      quote: "Ưu tiên xử lý nền rễ trước, sau đó mới đẩy đọt, kéo hoa hoặc dưỡng trái để cây đi bền hơn.",
       specs: [
-        ["Công dụng chính", "Hỗ trợ phục hồi cây và cải thiện sức sinh trưởng"],
-        ["Cách dùng", "Pha theo khuyến nghị trên bao bì"],
-        ["Thời điểm dùng", "Sáng sớm hoặc chiều mát"],
-        ["Lưu ý", "Không tự ý tăng liều khi cây đang yếu"],
-        ["Phù hợp", "Vườn nhà, nhà màng, canh tác quy mô nhỏ"]
+        ["Nhóm công dụng", "Kích rễ, phục hồi đất, hỗ trợ cây suy yếu"],
+        ["Dấu hiệu phù hợp", "Rễ yếu, vàng lá, cây chậm phát, sau thu hoạch"],
+        ["Cách dùng", "Pha tưới gốc hoặc phun theo hướng dẫn trên bao bì"],
+        ["Thời điểm", "Sáng sớm hoặc chiều mát, tránh nắng gắt"],
+        ["Lưu ý", "Không tăng liều khi cây đang sốc nước hoặc suy nặng"]
       ],
-      highlights: ["Phục hồi rễ, vàng lá theo đúng tình trạng", "Dễ pha, dễ phun hoặc tưới", "Tối ưu liều dùng để tiết kiệm chi phí", "Theo dõi hiệu quả sau từng chu kỳ chăm sóc"],
+      highlights: ["Hỗ trợ bung rễ mới và tăng hấp thu", "Giảm vàng lá do rễ hoạt động kém", "Phù hợp giai đoạn phục hồi sau thu hoạch", "Tối ưu khi kết hợp quản lý ẩm độ đất"],
       reviews: [
-        ["Mạnh Trí", "Dùng đúng hướng dẫn, cây hồi đều hơn sau vài ngày theo dõi."],
-        ["Ngọc Hân", "Shop tư vấn kỹ liều pha, đóng gói cẩn thận."],
-        ["Nhật Minh", "Tiết kiệm chi phí hơn so với mua lẻ nhiều loại."]
+        ["Anh Trí", "Tưới đúng liều, cây sầu riêng ra rễ cám lại và lá đứng hơn."],
+        ["Chị Hân", "Shop tư vấn kỹ giai đoạn phục hồi, đóng hàng chắc chắn."],
+        ["Minh Vườn", "Dễ pha, dùng tiết kiệm hơn mua lẻ nhiều loại."]
       ],
       affiliate: ["Chia sẻ để nhận 9.600đ", "8% hoa hồng"]
+    },
+    flower: {
+      articleTitle: "Tạo mầm hoa, kéo hoa và chống nghẹn bông",
+      articleBody: "Nhóm sản phẩm ra hoa được cấu hình từ các dòng như TRIMETHYL, 1-80-1, CALAMIN BOS, Kích Phát Tố và C800 GOLD trên nguồn Lazada. Nội dung tập trung vào xử lý mầm hoa, kéo bông, chống nghẹn hoa và tăng tỷ lệ đậu trái non.",
+      quote: "Giai đoạn hoa cần đi đúng nhịp: tạo mầm, kéo hoa, dưỡng bông và giữ trái non.",
+      specs: [
+        ["Nhóm công dụng", "Tạo mầm hoa, kéo hoa, chống nghẹn bông"],
+        ["Dấu hiệu phù hợp", "Hoa lọt sọt, nghẹn hoa, bông yếu, cần ra hoa đồng loạt"],
+        ["Cách dùng", "Phun lá theo lịch xử lý ra hoa của từng cây trồng"],
+        ["Thời điểm", "Trước và trong giai đoạn phân hóa mầm hoa"],
+        ["Lưu ý", "Không phối trộn tùy tiện với thuốc có tính nóng"]
+      ],
+      highlights: ["Hỗ trợ ra hoa đồng loạt", "Giảm nghẹn hoa và khô đen bông", "Tăng sức bông, sáng mắt cua", "Phù hợp cây ăn trái cần xử lý mùa vụ"],
+      reviews: [
+        ["Nhà vườn Lâm Đồng", "Dùng đúng lịch, bông ra đều hơn và dễ quản lý đợt hoa."],
+        ["Anh Phúc", "Hàng đúng mô tả, shop nhắc kỹ không lạm liều."],
+        ["Cô Mai", "Phù hợp giai đoạn kéo bông, cây không bị nóng lá."]
+      ],
+      affiliate: ["Chia sẻ để nhận 12.500đ", "8% hoa hồng"]
+    },
+    fruit: {
+      articleTitle: "Dưỡng trái, chống nứt và cải thiện mẫu mã",
+      articleBody: "Nhóm dưỡng trái lấy cảm hứng từ các dòng chống bể gai nứt trái, sửa tướng trái, canxi-bo, phân sầu riêng và dưỡng trái trên nguồn VTNN Đạ Tẻh. Mục tiêu là giúp trái lớn đều, vỏ chắc, xanh gai và hạn chế rụng/nứt trái.",
+      quote: "Dưỡng trái tốt không chỉ làm trái lớn mà còn giữ cuống, giữ vỏ và ổn định mẫu mã.",
+      specs: [
+        ["Nhóm công dụng", "Dưỡng trái, chống nứt, giữ cuống, xanh gai"],
+        ["Dấu hiệu phù hợp", "Trái chậm lớn, dễ nứt, cuống yếu, mẫu mã không đều"],
+        ["Dinh dưỡng trọng tâm", "Canxi, bo, vi lượng, amino, hữu cơ"],
+        ["Cách dùng", "Phun hoặc tưới theo từng giai đoạn nuôi trái"],
+        ["Lưu ý", "Theo dõi ẩm độ để hạn chế nứt trái do sốc nước"]
+      ],
+      highlights: ["Hỗ trợ trái tròn đều và chắc vỏ", "Giảm rụng trái non, nứt trái", "Cải thiện xanh gai, sáng trái, đẹp mã", "Phù hợp sầu riêng và cây ăn trái"],
+      reviews: [
+        ["Vườn Đạ Tẻh", "Trái đều hơn, cuống chắc và mẫu mã nhìn sáng hơn."],
+        ["Anh Quốc", "Shop gợi ý đúng giai đoạn nuôi trái, không bán lan man."],
+        ["Chị Dung", "Hàng đóng kỹ, dùng cho sầu riêng thấy dễ theo dõi."]
+      ],
+      affiliate: ["Chia sẻ để nhận 15.000đ", "8% hoa hồng"]
+    },
+    pest: {
+      articleTitle: "Quản lý sâu, rầy, nhện và côn trùng gây hại",
+      articleBody: "Nhóm này dựa trên các sản phẩm như ZHEOS 555WG và SUN-MITE43SC trong nguồn Lazada. Nội dung tập trung vào xử lý sâu, rầy, nhện với yêu cầu phun đúng thời điểm, đúng liều và luân phiên hoạt chất để hạn chế kháng thuốc.",
+      quote: "Xử lý sâu rầy hiệu quả phải đúng đối tượng, đúng tuổi sâu và không phun lặp một hoạt chất quá nhiều lần.",
+      specs: [
+        ["Nhóm công dụng", "Trừ sâu, rầy, nhện và côn trùng chích hút"],
+        ["Dấu hiệu phù hợp", "Lá xoăn, chồi non hư, nhện đỏ, rầy xuất hiện mật số cao"],
+        ["Cách dùng", "Phun ướt đều tán lá, mặt dưới lá và vùng non"],
+        ["Thời điểm", "Chiều mát, tránh mưa ngay sau phun"],
+        ["Lưu ý", "Mang bảo hộ và tuân thủ thời gian cách ly"]
+      ],
+      highlights: ["Tác động nhanh lên nhóm sâu rầy nhện", "Phù hợp xử lý khi mật số tăng", "Cần luân phiên hoạt chất để bền hiệu quả", "Tư vấn kỹ trước khi phối trộn"],
+      reviews: [
+        ["Anh Sơn", "Shop hỏi đúng tình trạng vườn rồi mới tư vấn thuốc."],
+        ["Cô Hạnh", "Phun theo hướng dẫn, nhện giảm rõ sau khi theo dõi lại."],
+        ["Nhà vườn Đức", "Đóng gói cẩn thận, có nhắc bảo hộ và cách ly."]
+      ],
+      affiliate: ["Chia sẻ để nhận 11.000đ", "7% hoa hồng"]
+    },
+    disease: {
+      articleTitle: "Phòng trừ bệnh nội hấp, thối rễ và xì mủ",
+      articleBody: "Nhóm thuốc bệnh được cấu hình theo các dòng SUN METAZO, SUN AZOCY, DONA FOSK và TRICHOTEC trong nguồn Lazada. Nội dung hướng đến bệnh do nấm/khuẩn, thối rễ, vàng lá, xì mủ và các tình trạng cần hoạt chất nội hấp/lưu dẫn.",
+      quote: "Với bệnh cây, cần xác định đúng triệu chứng trước khi phun để tránh tốn thuốc mà không trúng nguyên nhân.",
+      specs: [
+        ["Nhóm công dụng", "Phòng trừ nấm bệnh, thối rễ, vàng lá, xì mủ"],
+        ["Dấu hiệu phù hợp", "Lá vàng, rễ thối, xì mủ, cháy lá, bệnh lan sau mưa"],
+        ["Cơ chế ưu tiên", "Nội hấp, lưu dẫn hoặc hỗ trợ tăng kháng thể cây"],
+        ["Cách dùng", "Phun/tưới theo đúng bệnh và hướng dẫn bao bì"],
+        ["Lưu ý", "Không phối trộn khi chưa kiểm tra tương thích"]
+      ],
+      highlights: ["Hỗ trợ xử lý bệnh sau mưa ẩm", "Tập trung thối rễ, vàng lá, xì mủ", "Ưu tiên hoạt chất nội hấp/lưu dẫn", "Cần chẩn đoán đúng trước khi dùng"],
+      reviews: [
+        ["Anh Lợi", "Gửi hình cây bệnh, shop tư vấn đúng hướng xử lý hơn."],
+        ["Chị Thảo", "Dùng theo liều nhắc trên đơn, cây giảm lan bệnh."],
+        ["Vườn Gia Lai", "Hàng mới, nhãn rõ, tư vấn không phối bừa."]
+      ],
+      affiliate: ["Chia sẻ để nhận 13.500đ", "7% hoa hồng"]
+    },
+    micronutrient: {
+      articleTitle: "Bổ sung vi lượng, kẽm, canxi-bo cho cây khỏe",
+      articleBody: "Nhóm này dựa trên COMBI GOLD, SIÊU KẼM, ÁO GIÁP KẼM, YMC1, CANXI-BO và các dòng vi lượng trong nguồn Lazada. Nội dung tập trung vào bổ sung thiếu hụt dinh dưỡng, cứng mô, xanh lá, chống rụng và cải thiện đề kháng.",
+      quote: "Vi lượng đúng lúc giúp cây khỏe mô, xanh lá, giảm rụng và hấp thu phân chính tốt hơn.",
+      specs: [
+        ["Nhóm công dụng", "Vi lượng, kẽm, canxi-bo, chelate"],
+        ["Dấu hiệu phù hợp", "Lá nhạt, xoăn ngọn, rụng hoa/trái non, mô yếu"],
+        ["Dạng dinh dưỡng", "Chelate, trung vi lượng, canxi-bo"],
+        ["Cách dùng", "Phun lá hoặc tưới tùy sản phẩm"],
+        ["Lưu ý", "Không thay thế hoàn toàn phân nền NPK"]
+      ],
+      highlights: ["Bổ sung vi lượng thiết yếu dạng dễ hấp thu", "Hỗ trợ xanh lá, dày lá, cứng mô", "Giảm rụng hoa và trái non", "Tốt cho giai đoạn nuôi đọt, hoa, trái"],
+      reviews: [
+        ["Cô Lan", "Lá xanh và dày hơn, cây nhìn khỏe sau vài lần chăm."],
+        ["Anh Tâm", "Dùng kèm phân nền thấy cây hấp thu tốt hơn."],
+        ["Nhà vườn Bảo Lộc", "Shop phân biệt rõ kẽm, canxi-bo và vi lượng tổng."]
+      ],
+      affiliate: ["Chia sẻ để nhận 10.800đ", "8% hoa hồng"]
+    },
+    organic: {
+      articleTitle: "Hữu cơ, humic, amino và cải tạo nền đất",
+      articleBody: "Nhóm hữu cơ được cấu hình theo NUTRI GREEN, XANH HOÁ, NITROPOTAS, ĐẠM CÁ - RONG BIỂN và các dòng humic/fulvic/amino trong nguồn Lazada. Mục tiêu là nuôi đất, mát cây, tăng lực và giúp cây phục hồi bền hơn.",
+      quote: "Muốn cây đi dài vụ, nền hữu cơ và vi sinh trong đất cần được chăm song song với phân khoáng.",
+      specs: [
+        ["Nhóm công dụng", "Hữu cơ, humic, fulvic, amino, rong biển"],
+        ["Dấu hiệu phù hợp", "Đất chai, cây stress, cây sau thu hoạch, cần tăng lực"],
+        ["Lợi ích chính", "Cải tạo đất, mát cây, xanh lá, tăng hấp thu"],
+        ["Cách dùng", "Tưới gốc hoặc phun theo khuyến nghị"],
+        ["Lưu ý", "Hiệu quả bền cần dùng theo chu kỳ, không nóng vội"]
+      ],
+      highlights: ["Cải tạo đất và phục hồi hệ rễ", "Bổ sung amino, humic, hữu cơ dễ hấp thu", "Giúp cây mát và giảm stress", "Phù hợp chăm nền dài hạn"],
+      reviews: [
+        ["Anh Khoa", "Đất tơi hơn, cây sau thu hoạch hồi nhẹ nhàng hơn."],
+        ["Chị Vy", "Dòng hữu cơ dễ dùng, không bị sốc cây."],
+        ["Vườn Đức Trọng", "Shop tư vấn dùng theo chu kỳ nên dễ kiểm soát chi phí."]
+      ],
+      affiliate: ["Chia sẻ để nhận 12.000đ", "8% hoa hồng"]
+    },
+    growth: {
+      articleTitle: "Kích đọt, bung chồi và phục hồi sinh trưởng",
+      articleBody: "Nhóm sinh trưởng lấy từ các dòng TEEN, SIÊU KÍCH ĐỌT, SUPER GROWTH, MAX DINH DƯỠNG và GONIK trong nguồn Lazada. Nội dung tập trung vào bung đọt, xanh lá, mập cành và phục hồi sau thu hoạch.",
+      quote: "Kích đọt nên đi sau khi rễ đủ khỏe, nếu không cây dễ ra đọt yếu và khó nuôi trái về sau.",
+      specs: [
+        ["Nhóm công dụng", "Bung chồi, kích đọt, xanh lá, phục hồi"],
+        ["Dấu hiệu phù hợp", "Cây chậm ra đọt, lá mỏng, cành yếu, sau thu hoạch"],
+        ["Cách dùng", "Phun lá hoặc tưới theo lịch ra đọt"],
+        ["Thời điểm", "Sau khi cây đã ổn rễ và đủ ẩm"],
+        ["Lưu ý", "Không ép đọt khi cây đang thiếu nước hoặc bệnh nặng"]
+      ],
+      highlights: ["Hỗ trợ bung chồi và đâm đọt mạnh", "Giúp lá xanh, dày và cành mập hơn", "Phù hợp phục hồi sau thu hoạch", "Nên kết hợp chăm rễ để cây đi bền"],
+      reviews: [
+        ["Anh Hải", "Đọt lên đều hơn, lá non mập và xanh hơn đợt trước."],
+        ["Chị Nhung", "Shop dặn xử lý rễ trước nên cây không bị đuối."],
+        ["Vườn Cát Tiên", "Hàng đúng loại, dùng theo lịch thấy dễ kiểm soát."]
+      ],
+      affiliate: ["Chia sẻ để nhận 10.500đ", "8% hoa hồng"]
     }
-  ];
+  };
 
-  if (isPlantCare) return plantProfiles[stableProductIndex(product, plantProfiles.length)];
+  function selectPlantProfile() {
+    if (/sâu|sau |sâu-|rầy|ray|nhện|nhen|mite|zheos|côn trùng|con-trung/.test(text)) return plantProfiles.pest;
+    if (/bệnh|benh|nấm|nam|thối|thoi|xì mủ|xi-mu|metazo|azocy|fosk|trichotec|phytophthora|fusarium|oidium/.test(text)) return plantProfiles.disease;
+    if (/hoa|bông|bong|mầm|mam|nghẹn|nghen|trimethyl|1-80-1|calamin|c800|kéo vọt|keo-vot|sóc nâu|soc-nau/.test(text)) return plantProfiles.flower;
+    if (/kẽm|kem|vi lượng|vi-luong|combi|chelate|ymc|áo giáp|ao-giap|đồng thau|dong-thau/.test(text)) return plantProfiles.micronutrient;
+    if (/hữu cơ|huu-co|humic|fulvic|amino|rong biển|rong-bien|đạm cá|dam-ca|nutri|xanh hoá|xanh-hoa|nitropotas/.test(text)) return plantProfiles.organic;
+    if (/đọt|dot|chồi|choi|teen|super growth|siêu kích|sieu-kich|max dinh dưỡng|max-dinh-duong|gonik/.test(text)) return plantProfiles.growth;
+    if (/rễ|re |rễ-|re-|roots|root|vàng lá|vang-la|giải độc|giai-doc|cải tạo đất|cai-tao-dat/.test(text)) return plantProfiles.root;
+    if (/trái|trai|gai|nứt|nut|bể|be|cuống|cuong|sầu riêng|sau-rieng|sửa tướng|sua-tuong|canxi|bo/.test(text)) return plantProfiles.fruit;
+    return Object.values(plantProfiles)[stableProductIndex(product, Object.keys(plantProfiles).length)];
+  }
+
+  if (isPlantCare) return selectPlantProfile();
   if (isBrewingGear) return gearProfiles[stableProductIndex(product, gearProfiles.length)];
   return coffeeProfiles[stableProductIndex(product, coffeeProfiles.length)];
 }
