@@ -524,6 +524,196 @@ function productDeepContent(product, media) {
   `;
 }
 
+function stableProductIndex(product, modulo) {
+  const source = `${product.slug || ""}${product.name || ""}`;
+  let total = 0;
+  for (let index = 0; index < source.length; index += 1) total += source.charCodeAt(index) * (index + 1);
+  return total % modulo;
+}
+
+function productContentProfile(product) {
+  const text = `${product.slug || ""} ${product.name || ""} ${product.category || ""}`.toLowerCase();
+  const isBrewingGear = /soriso|máy|may|pha cà phê|pha ca phe|timemore|ấm|am |kettle|grinder|cối|coi|dụng cụ|dung-cu/.test(text);
+  const isPlantCare = /nông|nong|phân bón|phan-bon|rễ cây|re-cay|vàng lá|vang-la|cây trồng|cay-trong|thuốc bảo vệ|thuoc-bao-ve|vật tư nông|vat-tu-nong|hữu cơ|huu-co|npk|vi sinh|bệnh cây|benh-cay|sâu bệnh|sau-benh|tưới cây|tuoi-cay|phun xịt|phun-xit/.test(text);
+  const coffeeProfiles = [
+    {
+      articleTitle: "Gu pha phin đậm vị, hậu ngọt",
+      articleBody: "Dòng cà phê này hợp với người thích ly phin rõ vị, hương rang mới và hậu vị sạch. Khi chọn đúng mức xay, ly cà phê lên mùi ổn định, không bị gắt ở cuối ngụm.",
+      quote: "Khách chọn dòng này thường ưu tiên độ thơm, độ đậm vừa phải và cảm giác dễ uống mỗi ngày.",
+      specs: [
+        ["Gu vị", "Đậm vừa, thơm rõ, hậu ngọt"],
+        ["Cách pha hợp", "Phin, pour over, moka pot"],
+        ["Độ rang", "Medium đến medium dark"],
+        ["Điểm nổi bật", "Rang mới dưới 10 ngày, xay theo yêu cầu"],
+        ["Phù hợp", "Uống đen đá, sữa đá hoặc cold brew nhẹ"]
+      ],
+      highlights: ["Rang mới theo lịch trong tuần", "Xay đúng cỡ cho phin hoặc pha máy", "Hậu vị sạch, ít gắt", "Túi zip có van giữ hương"],
+      reviews: [
+        ["Anh Tân", "Mùi thơm rõ, pha phin lên vị đậm nhưng không bị khét. Uống đen đá rất ổn."],
+        ["Chị Linh", "Đóng gói chắc, hạt mới, xay đúng yêu cầu nên về pha được ngay."],
+        ["Minh Khoa", "Hợp gu uống mỗi sáng, hậu ngọt và không bị chua gắt."]
+      ],
+      affiliate: ["Chia sẻ để nhận 14.800đ", "5% hoa hồng"]
+    },
+    {
+      articleTitle: "Cà phê rang mới cho gu hiện đại",
+      articleBody: "Hồ sơ hương được cân bằng để uống hằng ngày: đủ thơm, đủ body và dễ phối với sữa. Đây là lựa chọn hợp cho khách muốn cà phê sạch nhưng vẫn dễ uống.",
+      quote: "Mỗi mẻ rang được kiểm soát để giữ mùi tự nhiên của hạt, hạn chế vị cháy khét và dư vị nặng.",
+      specs: [
+        ["Gu vị", "Cân bằng, thơm hạt, hậu dịu"],
+        ["Thành phần", "Cà phê nguyên chất, không hương liệu"],
+        ["Ngày rang", "Ưu tiên mẻ mới trong 10 ngày"],
+        ["Cỡ xay", "Xay sẵn hoặc nguyên hạt"],
+        ["Pha chế", "Phin, espresso, French Press, Cold Brew"]
+      ],
+      highlights: ["Dễ uống cho cả đen và sữa", "Mùi hạt tự nhiên, không hương liệu", "Nhiều lựa chọn trọng lượng", "Hợp văn phòng và gia đình"],
+      reviews: [
+        ["Hồng Giang", "Ly sữa đá thơm, vị cà phê rõ chứ không bị lấn bởi sữa."],
+        ["Bình SBH", "Mua lần hai vì vị ổn định, gói 1kg dùng tiết kiệm hơn."],
+        ["Thơ Nguyễn", "Shop tư vấn cỡ xay kỹ, pha máy ra crema ổn."]
+      ],
+      affiliate: ["Chia sẻ để nhận 18.600đ", "6% hoa hồng"]
+    }
+  ];
+  const gearProfiles = [
+    {
+      articleTitle: "Thiết bị pha cà phê gọn cho nhu cầu hằng ngày",
+      articleBody: "Sản phẩm phù hợp cho người cần thao tác nhanh, dễ mang theo và không muốn setup cồng kềnh. Các chi tiết sử dụng được tối giản để pha ổn định tại nhà, văn phòng hoặc khi di chuyển.",
+      quote: "Ưu tiên trải nghiệm cầm nắm, vệ sinh nhanh và thao tác ít bước để giảm ma sát khi pha mỗi ngày.",
+      specs: [
+        ["Nhóm sản phẩm", "Máy pha / dụng cụ pha cà phê"],
+        ["Điểm mạnh", "Gọn, dễ dùng, dễ vệ sinh"],
+        ["Phù hợp", "Nhà riêng, văn phòng, du lịch"],
+        ["Trải nghiệm", "Pha nhanh, kiểm soát ly cà phê tốt hơn"],
+        ["Bảo quản", "Lau khô sau khi dùng, tránh va đập mạnh"]
+      ],
+      highlights: ["Thao tác ít bước, dễ làm quen", "Kích thước gọn, tiện mang theo", "Dễ vệ sinh sau khi pha", "Phù hợp khách muốn tự pha tại nhà"],
+      reviews: [
+        ["Khánh Nam", "Máy nhỏ gọn, dùng buổi sáng rất tiện, vệ sinh không mất thời gian."],
+        ["Tuấn Anh", "Mang đi làm được, pha với ly thấp vừa vặn và thao tác chắc tay."],
+        ["Ngọc Mai", "Shop đóng gói kỹ, có video hướng dẫn nên dùng lần đầu không bị lúng túng."]
+      ],
+      affiliate: ["Chia sẻ để nhận 89.000đ", "3% hoa hồng"]
+    },
+    {
+      articleTitle: "Dụng cụ hỗ trợ pha chính xác hơn",
+      articleBody: "Nhóm dụng cụ này giúp kiểm soát nước, cỡ xay hoặc thao tác rót tốt hơn, từ đó ly cà phê ổn định hơn giữa các lần pha.",
+      quote: "Một dụng cụ tốt không thay người pha, nhưng giúp thao tác lặp lại chính xác và dễ kiểm soát hơn.",
+      specs: [
+        ["Nhóm sản phẩm", "Dụng cụ pha cà phê"],
+        ["Ưu tiên", "Độ ổn định và cảm giác sử dụng"],
+        ["Phù hợp", "Pour over, phin, moka pot, espresso thủ công"],
+        ["Bảo dưỡng", "Vệ sinh nhẹ sau mỗi lần dùng"],
+        ["Lợi ích", "Giảm lỗi pha, tăng độ nhất quán"]
+      ],
+      highlights: ["Kiểm soát thao tác pha tốt hơn", "Thiết kế gọn, dễ đặt trên bàn pha", "Dùng được lâu nếu bảo quản đúng", "Hợp người mới lẫn người pha thường xuyên"],
+      reviews: [
+        ["Đức Huy", "Cảm giác cầm chắc, kiểm soát rót tốt hơn hẳn đồ phổ thông."],
+        ["Lam Phương", "Đặt cùng cà phê, shop tư vấn combo hợp gu nên dùng rất ổn."],
+        ["Quốc Bảo", "Sản phẩm hoàn thiện đẹp, không bị ọp ẹp."]
+      ],
+      affiliate: ["Chia sẻ để nhận 42.000đ", "4% hoa hồng"]
+    }
+  ];
+  const plantProfiles = [
+    {
+      articleTitle: "Giải pháp chăm cây theo từng giai đoạn",
+      articleBody: "Nội dung này được tách riêng cho nhóm vật tư nông nghiệp để người mua thấy rõ công dụng, cách dùng và tình huống nên sử dụng thay vì dùng chung một mô tả.",
+      quote: "Ưu tiên dùng đúng liều, đúng thời điểm và theo dõi phản ứng của cây sau mỗi lần xử lý.",
+      specs: [
+        ["Công dụng chính", "Hỗ trợ phục hồi cây và cải thiện sức sinh trưởng"],
+        ["Cách dùng", "Pha theo khuyến nghị trên bao bì"],
+        ["Thời điểm dùng", "Sáng sớm hoặc chiều mát"],
+        ["Lưu ý", "Không tự ý tăng liều khi cây đang yếu"],
+        ["Phù hợp", "Vườn nhà, nhà màng, canh tác quy mô nhỏ"]
+      ],
+      highlights: ["Phục hồi rễ, vàng lá theo đúng tình trạng", "Dễ pha, dễ phun hoặc tưới", "Tối ưu liều dùng để tiết kiệm chi phí", "Theo dõi hiệu quả sau từng chu kỳ chăm sóc"],
+      reviews: [
+        ["Mạnh Trí", "Dùng đúng hướng dẫn, cây hồi đều hơn sau vài ngày theo dõi."],
+        ["Ngọc Hân", "Shop tư vấn kỹ liều pha, đóng gói cẩn thận."],
+        ["Nhật Minh", "Tiết kiệm chi phí hơn so với mua lẻ nhiều loại."]
+      ],
+      affiliate: ["Chia sẻ để nhận 9.600đ", "8% hoa hồng"]
+    }
+  ];
+
+  if (isPlantCare) return plantProfiles[stableProductIndex(product, plantProfiles.length)];
+  if (isBrewingGear) return gearProfiles[stableProductIndex(product, gearProfiles.length)];
+  return coffeeProfiles[stableProductIndex(product, coffeeProfiles.length)];
+}
+
+function productDeepContent(product, media) {
+  const profile = productContentProfile(product);
+  const images = media.filter((item) => item.type === "image").slice(0, 8);
+  const heroImage = images[1]?.src || product.image;
+  const compareImage = images.find((item) => /dai-tra|chat-luong|nguyen-chat|signature|mashup|soriso|timemore/i.test(item.src))?.src || heroImage;
+  const reviewCount = product.reviews || 54;
+  return `
+    <section class="product-service-strip">
+      <div><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/phone-call.png" alt="">Hotline<br><strong>0931.863.826</strong></div>
+      <div><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/shipped.png" alt="">Miễn phí vận chuyển<br><strong>Đơn từ 599k</strong></div>
+      <div><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/exchange.png" alt="">15 ngày đổi trả<br><strong>Không cần lý do</strong></div>
+      <div><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/home.png" alt="">Rang mới<br><strong>Dưới 10 ngày</strong></div>
+    </section>
+
+    <section class="product-long-layout">
+      <article class="product-article">
+        <h2>Bài viết đánh giá</h2>
+        <div class="article-card">
+          <img src="${escapeHtml(heroImage)}" alt="${escapeHtml(product.name)}">
+          <div><h3>${escapeHtml(profile.articleTitle)}</h3><p>${escapeHtml(profile.articleBody)}</p></div>
+        </div>
+        <blockquote>"${escapeHtml(profile.quote)}"</blockquote>
+        <h2><span>1</span> Cam kết và hướng dẫn sử dụng</h2>
+        <p>${escapeHtml(profile.articleBody)}</p>
+        <img class="article-wide-image" src="${escapeHtml(compareImage)}" alt="">
+        <button class="read-more" type="button">Đọc tiếp</button>
+      </article>
+      <aside class="product-specs">
+        <h2>Đặc điểm nổi bật</h2>
+        <table>
+          ${profile.specs.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join("")}
+        </table>
+      </aside>
+    </section>
+
+    <section class="product-highlight-card">
+      <h2>Giới thiệu về sản phẩm này</h2>
+      <ul>
+        ${profile.highlights.map((item, index) => `<li><span>${index === profile.highlights.length - 1 ? "💧" : "✅"}</span>${escapeHtml(item)}</li>`).join("")}
+      </ul>
+    </section>
+
+    <section class="product-affiliate-card">
+      <strong>${escapeHtml(profile.affiliate[0])}</strong> cho mỗi lượt bán<br>
+      <span>${escapeHtml(profile.affiliate[1])}</span>
+    </section>
+
+    <section class="review-section">
+      <h2>Đánh giá của khách hàng (${escapeHtml(reviewCount)})</h2>
+      <div class="review-summary">
+        <strong>4,8 /5</strong>
+        <span>★★★★★ ${escapeHtml(reviewCount)} đánh giá đã xác minh</span>
+        <button type="button">Đánh giá ngay</button>
+      </div>
+      <div class="review-media-row">${images.map((item) => `<img src="${escapeHtml(item.src)}" alt="">`).join("")}</div>
+      <div class="review-list">
+        ${profile.reviews.map(([name, body]) => `
+          <article>
+            <strong>${escapeHtml(name)}</strong> <span>Người mua đã được kiểm duyệt</span>
+            <div class="soul-stars">★★★★★</div>
+            <p>${escapeHtml(body)}</p>
+          </article>
+        `).join("")}
+      </div>
+      <form class="comment-form">
+        <textarea placeholder="Mời bạn tham gia thảo luận, vui lòng nhập tiếng Việt có dấu."></textarea>
+        <div><input placeholder="Họ tên (bắt buộc)"><input placeholder="E-mail"><button type="button">Gửi</button></div>
+      </form>
+    </section>
+  `;
+}
+
 const blogRoutes = [
   "/blog-ca-phe/ca-phe-giam-can-khong-can-tap-luyen-trai-nghiem-thuc-te/",
   "/blog-ca-phe/hieu-ro-ve-ca-phe-pha-may-tranh-mua-nham/",
