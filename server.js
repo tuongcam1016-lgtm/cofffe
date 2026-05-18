@@ -162,6 +162,162 @@ const products = [
   }
 ];
 
+function catalogImage(title, subtitle, color) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${color}"/><stop offset="1" stop-color="#f97316"/></linearGradient></defs>
+    <rect width="900" height="900" rx="64" fill="#f8fafc"/>
+    <rect x="56" y="56" width="788" height="788" rx="48" fill="url(#g)" opacity=".12"/>
+    <circle cx="700" cy="180" r="92" fill="${color}" opacity=".16"/>
+    <path d="M452 178c-98 58-154 150-154 252 0 122 72 207 154 246 82-39 154-124 154-246 0-102-56-194-154-252Z" fill="${color}" opacity=".86"/>
+    <path d="M452 248v330M452 410c-66-74-140-110-222-108M452 480c70-64 142-96 216-94" stroke="#fff" stroke-width="28" stroke-linecap="round" fill="none"/>
+    <rect x="112" y="640" width="676" height="148" rx="28" fill="#fff"/>
+    <text x="450" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#111827">${title}</text>
+    <text x="450" y="755" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#64748b">${subtitle}</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+const activeCatalog = "vtnn";
+
+const vtnnProducts = [
+  {
+    id: "phan-bon-trichotec-phuc-hoi-dat-thoai-hoa-thoi-re-vang-la",
+    slug: "phan-bon-trichotec-phuc-hoi-dat-thoai-hoa-thoi-re-vang-la",
+    name: "Phân bón TRICHOTEC phục hồi đất thoái hoá, thối rễ, vàng lá",
+    category: "Kích rễ - phục hồi đất",
+    badge: "-18%",
+    sold: "Đã bán 1.2k+",
+    rating: 4.8,
+    reviews: 86,
+    origin: "Phục hồi rễ, cải tạo đất",
+    oldPrice: "185.000đ",
+    price: "152.000đ",
+    numericPrice: 152000,
+    stock: 34,
+    image: catalogImage("TRICHOTEC", "Thối rễ - vàng lá", "#16a34a"),
+    url: "/san-pham/phan-bon-trichotec-phuc-hoi-dat-thoai-hoa-thoi-re-vang-la/"
+  },
+  {
+    id: "phan-bon-1-80-1-tao-mam-hoa-chong-nghen-hoa",
+    slug: "phan-bon-1-80-1-tao-mam-hoa-chong-nghen-hoa",
+    name: "Phân bón 1-80-1 tạo mầm hoa, chống nghẹn hoa, bung hoa mạnh",
+    category: "Tạo mầm hoa",
+    badge: "-22%",
+    sold: "Đã bán 960+",
+    rating: 4.9,
+    reviews: 74,
+    origin: "Ra hoa đồng loạt",
+    oldPrice: "120.000đ",
+    price: "94.000đ",
+    numericPrice: 94000,
+    stock: 48,
+    image: catalogImage("1-80-1", "Tạo mầm hoa", "#dc2626"),
+    url: "/san-pham/phan-bon-1-80-1-tao-mam-hoa-chong-nghen-hoa/"
+  },
+  {
+    id: "phan-bon-chong-be-gai-nut-trai-canxi-bo",
+    slug: "phan-bon-chong-be-gai-nut-trai-canxi-bo",
+    name: "Phân bón chống bể gai nứt trái, cuống dẻo dai, xanh trái",
+    category: "Dưỡng trái - chống nứt",
+    badge: "-15%",
+    sold: "Đã bán 2.4k+",
+    rating: 4.85,
+    reviews: 121,
+    origin: "Dưỡng trái sầu riêng",
+    oldPrice: "165.000đ",
+    price: "140.000đ",
+    numericPrice: 140000,
+    stock: 39,
+    image: catalogImage("CANXI BO", "Dưỡng trái - xanh gai", "#f59e0b"),
+    url: "/san-pham/phan-bon-chong-be-gai-nut-trai-canxi-bo/"
+  },
+  {
+    id: "sun-mite43sc-sach-nhen-mat-cay",
+    slug: "sun-mite43sc-sach-nhen-mat-cay",
+    name: "SUN-MITE43SC sạch nhện, mát cây, an toàn cho bông",
+    category: "Trừ sâu - rầy - nhện",
+    badge: "-12%",
+    sold: "Đã bán 780+",
+    rating: 4.76,
+    reviews: 52,
+    origin: "Quản lý nhện đỏ",
+    oldPrice: "98.000đ",
+    price: "86.000đ",
+    numericPrice: 86000,
+    stock: 45,
+    image: catalogImage("SUN-MITE", "Sạch nhện - mát cây", "#7c3aed"),
+    url: "/san-pham/sun-mite43sc-sach-nhen-mat-cay/"
+  },
+  {
+    id: "sun-azocy-50wg-tru-benh-noi-hap-luu-dan",
+    slug: "sun-azocy-50wg-tru-benh-noi-hap-luu-dan",
+    name: "SUN AZOCY 50WG trừ bệnh nội hấp, lưu dẫn mạnh, phổ rộng",
+    category: "Thuốc bệnh cây",
+    badge: "-20%",
+    sold: "Đã bán 1k+",
+    rating: 4.88,
+    reviews: 69,
+    origin: "Nội hấp, lưu dẫn",
+    oldPrice: "210.000đ",
+    price: "168.000đ",
+    numericPrice: 168000,
+    stock: 22,
+    image: catalogImage("AZOCY", "Thuốc bệnh nội hấp", "#0f766e"),
+    url: "/san-pham/sun-azocy-50wg-tru-benh-noi-hap-luu-dan/"
+  },
+  {
+    id: "phan-bon-vi-luong-combi-gold-chelate",
+    slug: "phan-bon-vi-luong-combi-gold-chelate",
+    name: "Phân bón vi lượng COMBI GOLD dạng chelate giúp phục hồi bộ rễ",
+    category: "Vi lượng - chelate",
+    badge: "-17%",
+    sold: "Đã bán 650+",
+    rating: 4.83,
+    reviews: 44,
+    origin: "Bổ sung vi lượng thiết yếu",
+    oldPrice: "620.000đ",
+    price: "515.000đ",
+    numericPrice: 515000,
+    stock: 18,
+    image: catalogImage("COMBI GOLD", "Vi lượng chelate", "#ca8a04"),
+    url: "/san-pham/phan-bon-vi-luong-combi-gold-chelate/"
+  },
+  {
+    id: "phan-bon-huu-co-nutri-green-dam-trung-sua",
+    slug: "phan-bon-huu-co-nutri-green-dam-trung-sua",
+    name: "Phân bón hữu cơ NUTRI GREEN dịch trái cây ủ, đạm trứng sữa",
+    category: "Hữu cơ - cải tạo đất",
+    badge: "-19%",
+    sold: "Đã bán 1.5k+",
+    rating: 4.91,
+    reviews: 98,
+    origin: "Hữu cơ, amino, cải tạo đất",
+    oldPrice: "135.000đ",
+    price: "109.000đ",
+    numericPrice: 109000,
+    stock: 56,
+    image: catalogImage("NUTRI GREEN", "Hữu cơ - amino", "#059669"),
+    url: "/san-pham/phan-bon-huu-co-nutri-green-dam-trung-sua/"
+  },
+  {
+    id: "phan-bon-sieu-kich-dot-super-growth",
+    slug: "phan-bon-sieu-kich-dot-super-growth",
+    name: "Phân bón SUPER GROWTH siêu đâm chồi, bung tược, lá xanh dày",
+    category: "Kích đọt - sinh trưởng",
+    badge: "-16%",
+    sold: "Đã bán 890+",
+    rating: 4.82,
+    reviews: 63,
+    origin: "Kích đọt, phục hồi sau thu hoạch",
+    oldPrice: "145.000đ",
+    price: "122.000đ",
+    numericPrice: 122000,
+    stock: 41,
+    image: catalogImage("SUPER GROWTH", "Bung đọt - xanh lá", "#22c55e"),
+    url: "/san-pham/phan-bon-sieu-kich-dot-super-growth/"
+  }
+];
+
 const reviews = [
   {
     name: "Hoàng Giang",
@@ -208,15 +364,15 @@ const orders = readJsonFile(ORDERS_FILE, []);
 const leads = readJsonFile(LEADS_FILE, []);
 
 const routeLabels = {
-  "/ca-phe/": "Cà Phê Nguyên Chất",
-  "/smooth/": "Smooth Premium",
-  "/high-caffeine/": "High caffeine Premium",
-  "/ca-phe-cold-brew/": "Cà phê cold brew",
-  "/may-pha-ca-phe-cam-tay/": "Máy pha cà phê cầm tay",
-  "/dung-cu-pha-ca-phe/": "Dụng cụ pha cà phê",
-  "/giftset-combo/": "Combo - Giftset",
-  "/blog-ca-phe/": "Blog Cà Phê",
-  "/ve-taynguyensoul/": "Về TaynguyenSoul",
+  "/ca-phe/": "Tất cả vật tư nông nghiệp",
+  "/smooth/": "Phân bón phục hồi",
+  "/high-caffeine/": "Thuốc sâu bệnh",
+  "/ca-phe-cold-brew/": "Dưỡng hoa - dưỡng trái",
+  "/may-pha-ca-phe-cam-tay/": "Thiết bị tưới phun",
+  "/dung-cu-pha-ca-phe/": "Dụng cụ nông nghiệp",
+  "/giftset-combo/": "Combo chăm vườn",
+  "/blog-ca-phe/": "Kỹ thuật canh tác",
+  "/ve-taynguyensoul/": "Về VTNN Green Farming Dream",
   "/lien-he/": "Liên hệ",
   "/hoi-dap/": "Hỏi đáp",
   "/chinh-sach-doi-hang/": "Chính sách đổi trả",
@@ -229,13 +385,13 @@ const routeLabels = {
 };
 
 const categoryAliases = {
-  "/ca-phe/": ["Cà Phê Chất Lượng Cao", "Smooth Premium", "High caffeine Premium", "Cà phê cold brew"],
-  "/smooth/": ["Smooth Premium", "Cà Phê Chất Lượng Cao"],
-  "/high-caffeine/": ["High caffeine Premium"],
-  "/ca-phe-cold-brew/": ["Cà phê cold brew"],
-  "/may-pha-ca-phe-cam-tay/": ["Máy pha cà phê cầm tay"],
-  "/dung-cu-pha-ca-phe/": ["Dụng cụ pha cà phê"],
-  "/giftset-combo/": ["Combo - Giftset", "Cà phê cold brew"]
+  "/ca-phe/": [],
+  "/smooth/": ["Kích rễ - phục hồi đất", "Hữu cơ - cải tạo đất", "Vi lượng - chelate", "Kích đọt - sinh trưởng"],
+  "/high-caffeine/": ["Trừ sâu - rầy - nhện", "Thuốc bệnh cây"],
+  "/ca-phe-cold-brew/": ["Tạo mầm hoa", "Dưỡng trái - chống nứt"],
+  "/may-pha-ca-phe-cam-tay/": ["Thiết bị tưới phun"],
+  "/dung-cu-pha-ca-phe/": ["Dụng cụ nông nghiệp"],
+  "/giftset-combo/": ["Kích rễ - phục hồi đất", "Dưỡng trái - chống nứt", "Vi lượng - chelate"]
 };
 
 function decodeEntities(value = "") {
@@ -365,6 +521,7 @@ function categoryForProduct(slug, rawCategory) {
 }
 
 function extractSiteProducts() {
+  if (activeCatalog === "vtnn") return vtnnProducts;
   const html = readHomeHtml();
   const found = new Map();
   for (const match of html.matchAll(/<span[^>]+class="?gtm4wp_productdata"?[^>]*>/gi)) {
@@ -937,7 +1094,7 @@ function serveStatic(req, res) {
 function filterProducts(url) {
   const query = (url.searchParams.get("q") || "").trim().toLowerCase();
   const category = (url.searchParams.get("category") || "all").trim();
-  return products.filter((product) => {
+  return allSiteProducts().filter((product) => {
     const matchesCategory = category === "all" || product.category === category;
     const haystack = `${product.name} ${product.category} ${product.origin}`.toLowerCase();
     return matchesCategory && (!query || haystack.includes(query));
@@ -947,20 +1104,20 @@ function filterProducts(url) {
 function header(active = "") {
   const item = (href, label) => `<a class="${active === href ? "active" : ""}" href="${href}">${label}</a>`;
   return `
-    <div class="soul-promo-bar">CỐI XAY CÀ PHÊ NÂNG CẤP TRẢI NGHIỆM <a href="/may-pha-ca-phe-cam-tay/">Mua ngay →</a></div>
+    <div class="soul-promo-bar">VTNN ĐẠ TẺH - GIẢI PHÁP CHĂM VƯỜN THEO TỪNG GIAI ĐOẠN <a href="/ca-phe/">Mua ngay →</a></div>
     <header class="soul-header">
       <button class="mobile-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false"><span></span><span></span><span></span></button>
       <nav class="soul-nav">
-        ${item("/ca-phe/", "Cà phê")}
-        ${item("/may-pha-ca-phe-cam-tay/", "Máy pha cà phê cầm tay")}
-        ${item("/dung-cu-pha-ca-phe/", "Dụng cụ pha cà phê")}
+        ${item("/ca-phe/", "Vật tư nông nghiệp")}
+        ${item("/smooth/", "Phân bón")}
+        ${item("/high-caffeine/", "Thuốc sâu bệnh")}
       </nav>
       <a class="soul-logo" href="/">
         <img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul">
       </a>
       <nav class="soul-nav right">
-        ${item("/ve-taynguyensoul/", "Về TaynguyenSoul")}
-        ${item("/blog-ca-phe/", "Blog")}
+        ${item("/ca-phe-cold-brew/", "Hoa & trái")}
+        ${item("/blog-ca-phe/", "Kỹ thuật")}
         ${item("/lien-he/", "Liên hệ")}
         <a href="/tai-khoan/" aria-label="Tài khoản">♡</a>
         <a class="soul-cart-link" href="/gio-hang/">0</a>
@@ -1082,7 +1239,7 @@ function renderProductPage(product) {
 
   return layout(product.name, "/ca-phe/", `
     <main class="soul-main" data-tng-product="${embedded}">
-      <div class="soul-breadcrumb"><a href="/">Trang chủ</a> / <a href="/ca-phe/">Cà phê nguyên chất</a> / ${escapeHtml(product.category)}</div>
+      <div class="soul-breadcrumb"><a href="/">Trang chủ</a> / <a href="/ca-phe/">Vật tư nông nghiệp</a> / ${escapeHtml(product.category)}</div>
       <section class="product-detail">
         <div>
           <div class="product-gallery">
@@ -1104,38 +1261,38 @@ function renderProductPage(product) {
             <button class="gallery-arrow prev" type="button">‹</button>
             <button class="gallery-arrow next" type="button">›</button>
           </div>
-          <p class="quote">"Uống xong cà của shop nghiện luôn, dần uống đen đá nên uống cà chất lượng như thế này, đặc biệt cà có hậu vị rất dịu mà ngọt." - Anh Tân chia sẻ</p>
+          <p class="quote">"Shop tư vấn đúng tình trạng vườn, hàng đóng kỹ, dùng theo hướng dẫn dễ theo dõi hiệu quả." - Khách hàng Đạ Tẻh chia sẻ</p>
         </div>
         <div class="product-info">
           <h1>${escapeHtml(product.name)}</h1>
           <div class="rating-line"><span class="soul-stars">★★★★★</span><span>${escapeHtml(product.sold || "Đã bán (web): 51.6k+")}</span></div>
           <div class="price-range" data-base-price="${Number(product.numericPrice) || 0}">${escapeHtml(product.price || "Liên hệ")}</div>
           <div class="option-row">
-            <strong>Trọng lượng</strong>
+            <strong>Quy cách</strong>
             <div class="option-list" data-option-group="weight">
-              <button type="button" data-option-value="250g" data-price-multiplier="1">250g</button>
-              <button type="button" data-option-value="500g" data-price-multiplier="2">500g <span class="deal">-29%</span></button>
-              <button type="button" class="selected" data-option-value="1kg(2 gói 500g)" data-price-multiplier="3.68">1kg(2 gói 500g) <span class="deal">-31%</span></button>
+              <button type="button" data-option-value="Gói lẻ" data-price-multiplier="1">Gói lẻ</button>
+              <button type="button" data-option-value="Combo 3" data-price-multiplier="2.85">Combo 3 <span class="deal">-5%</span></button>
+              <button type="button" class="selected" data-option-value="Combo vườn" data-price-multiplier="5.4">Combo vườn <span class="deal">-10%</span></button>
             </div>
           </div>
           <div class="option-row">
-            <strong>Yêu cầu</strong>
+            <strong>Nhu cầu</strong>
             <div class="option-list" data-option-group="request">
-              <button type="button" class="selected" data-option-value="Xay sẵn">Xay sẵn</button>
-              <button type="button" data-option-value="Nguyên hạt">Nguyên hạt</button>
+              <button type="button" class="selected" data-option-value="Tưới gốc">Tưới gốc</button>
+              <button type="button" data-option-value="Phun lá">Phun lá</button>
             </div>
           </div>
           <div class="option-row">
-            <strong>Phương pháp pha cà phê</strong>
+            <strong>Giai đoạn cây</strong>
             <div class="option-list" data-option-group="brew">
-              <button type="button" class="selected" data-option-value="Pha phin">Pha phin</button>
-              <button type="button" data-option-value="Pha máy espresso">Pha máy espresso</button>
-              <button type="button" data-option-value="French Press/Cold Brew">French Press/Cold Brew</button>
-              <button type="button" data-option-value="Pour Over">Pour Over</button>
+              <button type="button" class="selected" data-option-value="Phục hồi">Phục hồi</button>
+              <button type="button" data-option-value="Ra hoa">Ra hoa</button>
+              <button type="button" data-option-value="Nuôi trái">Nuôi trái</button>
+              <button type="button" data-option-value="Phòng bệnh">Phòng bệnh</button>
             </div>
           </div>
           <div class="detail-price">Giá: <del data-variant-old-price>${escapeHtml(product.oldPrice || "")}</del> <span class="current-price" data-variant-price>${escapeHtml(product.price || "Liên hệ")}</span></div>
-          <p class="age-line">Với <span data-selected-weight>1kg(2 gói 500g)</span> bạn sẽ có <span class="age-badge" data-session-count>55 buổi</span> làm việc "Chất Lượng Cao"</p>
+          <p class="age-line">Với <span data-selected-weight>Combo vườn</span> bạn có đủ vật tư cho <span class="age-badge" data-session-count>1 chu kỳ</span> chăm sóc đúng giai đoạn.</p>
           <div class="buy-row">
             <div class="qty-control" data-qty-control><button type="button" data-product-qty="-1">-</button><span data-product-qty-value>1</span><button type="button" data-product-qty="1">+</button></div>
             <button class="add-cart tng-bridge-add" type="button" data-tng-product-id="${escapeHtml(product.id)}">Thêm vào giỏ hàng</button>
@@ -1143,9 +1300,9 @@ function renderProductPage(product) {
           <button class="buy-now tng-bridge-add" type="button" data-tng-product-id="${escapeHtml(product.id)}">Mua ngay <span>Giao hàng tận nơi, đổi trả miễn phí</span></button>
           <div class="offer-box">
             <div class="offer-title">🎉 Ưu đãi dành riêng cho bạn!</div>
-            <div class="offer-row"><strong>FREESHIP</strong> cho đơn từ <strong>1KG cà phê</strong> hoặc 599k</div>
-            <div class="offer-row"><strong>SoulSub</strong> giảm thêm 5% cho thành viên đã mua từ 700k</div>
-            <div class="offer-row"><strong>SoulSub VIP</strong> giảm thêm 7% cho thành viên đã mua từ 2500k</div>
+            <div class="offer-row"><strong>FREESHIP</strong> cho đơn từ <strong>599k</strong> hoặc combo vật tư</div>
+            <div class="offer-row"><strong>Tư vấn vườn</strong> gợi ý cách dùng theo tình trạng cây</div>
+            <div class="offer-row"><strong>Combo tiết kiệm</strong> giảm thêm cho đơn nhiều sản phẩm</div>
           </div>
         </div>
       </section>
@@ -1192,17 +1349,17 @@ function renderCategoryPageDeep(pathname) {
   const aliases = categoryAliases[pathname] || [];
   const list = allSiteProducts().filter((product) => !aliases.length || aliases.includes(product.category)).slice(0, 24);
   const tabs = [
-    ["/ca-phe/", "Cà Phê Chất Lượng Cao"],
-    ["/smooth/", "Smooth Premium"],
-    ["/high-caffeine/", "High caffeine Premium"],
-    ["/ca-phe-cold-brew/", "Cà phê cold brew"],
-    ["/giftset-combo/", "Combo - Giftset"]
+    ["/ca-phe/", "Tất cả"],
+    ["/smooth/", "Phân bón phục hồi"],
+    ["/high-caffeine/", "Thuốc sâu bệnh"],
+    ["/ca-phe-cold-brew/", "Hoa & trái"],
+    ["/giftset-combo/", "Combo chăm vườn"]
   ];
   return layout(title, pathname, `
     <section class="category-hero">
       <div>
-        <h1>Giúp bạn chọn được túi cà phê sạch...</h1>
-        <p>Tinh tuyển cà phê 100% sạch, rang mới, minh bạch vùng nguyên liệu và phù hợp từng gu thưởng thức.</p>
+        <h1>Chọn đúng vật tư cho từng giai đoạn cây trồng</h1>
+        <p>Nguồn nội dung cấu hình theo VTNN GREEN FARMING DREAM trên Lazada: kích rễ, tạo mầm hoa, dưỡng trái, vi lượng, hữu cơ và thuốc sâu bệnh.</p>
       </div>
     </section>
     <main class="soul-main category-page">
@@ -1215,15 +1372,15 @@ function renderCategoryPageDeep(pathname) {
       <div class="category-load-more"><button type="button">Xem thêm</button></div>
       <section class="category-guide">
         <div>
-          <h2>Chưa biết dòng cà phê nào phù hợp?</h2>
-          <p>Hãy đặt câu hỏi cho Tây Nguyên Soul AI để tìm ra dòng cà phê hợp gu nhất với bạn.</p>
+          <h2>Chưa biết cây đang cần nhóm vật tư nào?</h2>
+          <p>Chọn theo triệu chứng: rễ yếu, vàng lá, nghẹn hoa, nứt trái, sâu rầy nhện hoặc bệnh sau mưa.</p>
           <a href="/taynguyensoul-coffee-quiz/">Khám phá ngay</a>
         </div>
       </section>
       <article class="category-copy">
-        <p>Nếu ai đó hỏi một loại thức uống đầy đủ vị và văn hóa như cà phê nguyên chất rất thích khẳng định thói quen thưởng thức một tách cà phê nguyên chất mỗi sáng để bắt đầu ngày mới.</p>
-        <p>Các sản phẩm cà phê trên thị trường rất phổ biến, từ rất nhiều thương hiệu lớn nhỏ. Tây Nguyên Soul tập trung vào nguyên liệu chín, rang mới, kiểm soát hương vị, không hương liệu và không pha trộn tạp chất.</p>
-        <p>Từ phin truyền thống, pha máy, cold brew đến French Press, mỗi dòng cà phê được mô tả rõ để khách hàng chọn đúng gu.</p>
+        <p>Danh mục được chia theo nhu cầu canh tác thực tế thay vì gom chung một mô tả. Mỗi nhóm sản phẩm có nội dung riêng về công dụng, dấu hiệu phù hợp, cách dùng và lưu ý an toàn.</p>
+        <p>Nội dung tham chiếu từ cửa hàng VTNN GREEN FARMING DREAM trên Lazada, gồm các nhóm phân bón vi lượng, hữu cơ, NPK, kích rễ, tạo mầm hoa, dưỡng trái và thuốc sâu bệnh.</p>
+        <p>Khi lên sản phẩm thật, chỉ cần đặt tên sản phẩm đúng nhóm, hệ thống sẽ tự chọn profile nội dung phù hợp.</p>
       </article>
     </main>
   `);
@@ -1385,6 +1542,11 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   try {
+    if (req.method === "GET" && url.pathname === "/") {
+      sendHtml(res, renderCategoryPageDeep("/ca-phe/"));
+      return;
+    }
+
     if (req.method === "GET" && url.pathname.startsWith("/san-pham/")) {
       const slug = url.pathname.split("/").filter(Boolean).pop();
       const product = allSiteProducts().find((item) => item.slug === slug) || allSiteProducts()[0];
@@ -1433,7 +1595,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/health") {
       sendJson(res, 200, {
         ok: true,
-        products: products.length,
+        products: allSiteProducts().length,
         orders: orders.length,
         leads: leads.length,
         uptime: Math.round(process.uptime())
@@ -1466,7 +1628,7 @@ const server = http.createServer(async (req, res) => {
       const items = Array.isArray(body.items) ? body.items : [];
       const normalizedItems = items
         .map((item) => {
-          const product = products.find((entry) => entry.id === item.id);
+          const product = allSiteProducts().find((entry) => entry.id === item.id);
           const quantity = Math.max(1, Number(item.quantity) || 1);
           if (product) return { id: product.id, name: product.name, quantity, price: product.numericPrice };
 
