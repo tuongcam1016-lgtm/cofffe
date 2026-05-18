@@ -6,6 +6,381 @@
   --soul-soft: #faf7f2;
 }
 
+/* TikTok Shop inspired commerce skin */
+:root {
+  --shop-red: #fe2c55;
+  --shop-orange: #ff6a00;
+  --shop-cyan: #25f4ee;
+  --shop-ink: #101010;
+  --shop-muted: #6f6f76;
+  --shop-bg: #f6f6f7;
+  --shop-card: #ffffff;
+  --shop-line: #ececf0;
+  --shop-radius: 18px;
+  --shop-shadow: 0 10px 28px rgba(16, 16, 16, 0.08);
+}
+
+.tiktok-commerce-skin {
+  background: var(--shop-bg);
+  color: var(--shop-ink);
+  font-family: Inter, "TikTok Sans", Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+  scroll-behavior: smooth;
+}
+
+.tiktok-commerce-skin .soul-promo-bar {
+  background: linear-gradient(90deg, #101010, #fe2c55 52%, #ff6a00);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+.tiktok-commerce-skin .soul-header {
+  top: 0;
+  min-height: 72px;
+  border-bottom: 1px solid rgba(16, 16, 16, 0.06);
+  box-shadow: 0 8px 26px rgba(16, 16, 16, 0.08);
+  backdrop-filter: saturate(150%) blur(14px);
+}
+
+.tng-shop-search {
+  position: sticky;
+  top: 72px;
+  z-index: 80;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  width: min(1120px, calc(100% - 28px));
+  margin: 10px auto 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--shop-line);
+  border-radius: 999px;
+  box-shadow: var(--shop-shadow);
+  backdrop-filter: blur(12px);
+}
+
+.tng-shop-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: #f1f1f3;
+  border-radius: 999px;
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+
+.tng-shop-search button,
+.tiktok-commerce-skin .add-cart,
+.tiktok-commerce-skin .buy-now,
+.tiktok-commerce-skin .place-order,
+.tiktok-commerce-skin .coupon-entry button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--shop-red), var(--shop-orange));
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(254, 44, 85, 0.22);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.tng-shop-search button {
+  min-width: 82px;
+  padding: 0 16px;
+}
+
+.tiktok-commerce-skin .category-hero,
+.tiktok-commerce-skin .page-hero {
+  border-radius: 0 0 26px 26px;
+  background:
+    radial-gradient(circle at 78% 12%, rgba(37, 244, 238, 0.26), transparent 28%),
+    linear-gradient(135deg, #111 0%, #3b151f 45%, #fe2c55 100%);
+  color: #fff;
+  overflow: hidden;
+}
+
+.tiktok-commerce-skin .category-hero h1,
+.tiktok-commerce-skin .page-hero h1,
+.tiktok-commerce-skin .product-info h1 {
+  font-weight: 950;
+  letter-spacing: -0.035em;
+}
+
+.tiktok-commerce-skin .tng-flash-strip {
+  width: min(1120px, calc(100% - 28px));
+  margin: 16px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--shop-radius);
+  background: linear-gradient(135deg, #fe2c55, #ff6a00);
+  color: #fff;
+  box-shadow: var(--shop-shadow);
+}
+
+.tng-flash-strip strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.tng-flash-strip span {
+  font-size: 13px;
+  opacity: 0.88;
+}
+
+.tng-flash-strip time {
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 900;
+}
+
+.tiktok-commerce-skin .product-grid-page {
+  width: min(1120px, calc(100% - 28px));
+  margin-left: auto;
+  margin-right: auto;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.tiktok-commerce-skin .product-card,
+.tiktok-commerce-skin .product-small,
+.tiktok-commerce-skin .box,
+.tiktok-commerce-skin .cart-block,
+.tiktok-commerce-skin .order-review,
+.tiktok-commerce-skin .coupon-row,
+.tiktok-commerce-skin .product-info,
+.tiktok-commerce-skin .product-gallery,
+.tiktok-commerce-skin .offer-box {
+  border: 1px solid rgba(16, 16, 16, 0.06);
+  border-radius: var(--shop-radius);
+  background: var(--shop-card);
+  box-shadow: var(--shop-shadow);
+}
+
+.tiktok-commerce-skin .product-card,
+.tiktok-commerce-skin .product-small {
+  overflow: hidden;
+  transform: translateY(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tiktok-commerce-skin .product-card:hover,
+.tiktok-commerce-skin .product-small:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 16px 36px rgba(16, 16, 16, 0.12);
+}
+
+.tiktok-commerce-skin .product-card img,
+.tiktok-commerce-skin .product-small img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #f4f4f5;
+}
+
+.tiktok-commerce-skin .price,
+.tiktok-commerce-skin .price-range,
+.tiktok-commerce-skin [data-variant-price],
+.tiktok-commerce-skin .checkout-review-row strong,
+.tiktok-commerce-skin .order-line.total strong {
+  color: var(--shop-red);
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.tiktok-commerce-skin .discount,
+.tiktok-commerce-skin .sale-badge,
+.tiktok-commerce-skin .badge,
+.tiktok-commerce-skin .product-card::before {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--shop-red), var(--shop-orange));
+  color: #fff;
+}
+
+.tiktok-commerce-skin .product-card::before,
+.tiktok-commerce-skin .product-small::before {
+  content: "HOT";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 950;
+  background: linear-gradient(135deg, var(--shop-red), var(--shop-orange));
+  color: #fff;
+  border-radius: 999px;
+  box-shadow: 0 8px 16px rgba(254, 44, 85, 0.25);
+}
+
+.tiktok-commerce-skin .product-detail {
+  width: min(1180px, calc(100% - 28px));
+  gap: 18px;
+}
+
+.tiktok-commerce-skin .product-gallery,
+.tiktok-commerce-skin .product-info {
+  padding: 14px;
+}
+
+.tiktok-commerce-skin .product-hero-image,
+.tiktok-commerce-skin .product-video-frame {
+  border-radius: 16px;
+}
+
+.tiktok-commerce-skin .option-group button,
+.tiktok-commerce-skin [data-option-group] button,
+.tiktok-commerce-skin .checkout-qty,
+.tiktok-commerce-skin .quantity-control {
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+.tiktok-commerce-skin .option-group button.selected,
+.tiktok-commerce-skin [data-option-group] button.selected {
+  border-color: var(--shop-red);
+  color: var(--shop-red);
+  box-shadow: 0 0 0 3px rgba(254, 44, 85, 0.12);
+}
+
+.tiktok-commerce-skin .checkout-page {
+  border: 0;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(16, 16, 16, 0.1);
+}
+
+.tiktok-commerce-skin .checkout-form input,
+.tiktok-commerce-skin .checkout-form select,
+.tiktok-commerce-skin .checkout-form textarea,
+.tiktok-commerce-skin .coupon-entry input {
+  border-radius: 14px;
+  border-color: var(--shop-line);
+  background: #fafafa;
+  min-height: 48px;
+}
+
+.tiktok-commerce-skin .checkout-form input:focus,
+.tiktok-commerce-skin .checkout-form select:focus,
+.tiktok-commerce-skin .checkout-form textarea:focus {
+  outline: 0;
+  border-color: var(--shop-red);
+  box-shadow: 0 0 0 4px rgba(254, 44, 85, 0.12);
+}
+
+.tiktok-commerce-skin .checkout-page-status:not(:empty),
+.tiktok-commerce-skin .tng-bridge-success {
+  border-radius: 16px;
+  border-color: rgba(0, 184, 122, 0.28);
+  background: linear-gradient(135deg, #ecfff7, #f7fffb);
+}
+
+.tng-mobile-tabbar {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 999999;
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid rgba(16, 16, 16, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 46px rgba(16, 16, 16, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.tng-mobile-tabbar a,
+.tng-mobile-tabbar button {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--shop-ink);
+  text-decoration: none;
+  font: inherit;
+  min-height: 48px;
+}
+
+.tng-mobile-tabbar span {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.tng-mobile-tabbar strong {
+  font-size: 10px;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tiktok-commerce-skin .product-card,
+  .tiktok-commerce-skin .product-small,
+  .tiktok-commerce-skin .cart-block,
+  .tiktok-commerce-skin .order-review,
+  .tiktok-commerce-skin .product-info {
+    animation: shopFadeIn 0.42s ease both;
+  }
+
+  @keyframes shopFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@media (max-width: 760px) {
+  .tiktok-commerce-skin {
+    padding-bottom: 86px;
+  }
+
+  .tiktok-commerce-skin .soul-header {
+    min-height: 64px;
+  }
+
+  .tng-shop-search {
+    top: 64px;
+    width: calc(100% - 20px);
+    margin-top: 8px;
+  }
+
+  .tng-mobile-tabbar {
+    display: grid;
+  }
+
+  .tiktok-commerce-skin .product-grid-page {
+    width: calc(100% - 20px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .tiktok-commerce-skin .product-card,
+  .tiktok-commerce-skin .product-small {
+    border-radius: 16px;
+  }
+
+  .tiktok-commerce-skin .add-cart,
+  .tiktok-commerce-skin .buy-now {
+    min-height: 52px;
+  }
+
+  .tiktok-commerce-skin .product-info .add-cart,
+  .tiktok-commerce-skin .product-info .buy-now {
+    position: sticky;
+    bottom: 76px;
+    z-index: 40;
+  }
+
+  .tiktok-commerce-skin .order-review {
+    position: sticky;
+    bottom: 76px;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

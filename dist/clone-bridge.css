@@ -6,6 +6,47 @@
   background: rgba(0, 0, 0, 0.45);
 }
 
+.tiktok-commerce-skin .tng-bridge-panel {
+  border-radius: 24px 0 0 24px;
+  background: #fff;
+  box-shadow: -18px 0 60px rgba(16, 16, 16, 0.18);
+}
+
+.tiktok-commerce-skin .tng-bridge-head h2 {
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+.tiktok-commerce-skin .tng-bridge-item {
+  border-color: #ececf0;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(16, 16, 16, 0.06);
+}
+
+.tiktok-commerce-skin .tng-bridge-item img {
+  border-radius: 14px;
+}
+
+.tiktok-commerce-skin .tng-bridge-checkout,
+.tiktok-commerce-skin .tng-bridge-add {
+  background: linear-gradient(135deg, #fe2c55, #ff6a00);
+  border: 0;
+  box-shadow: 0 10px 22px rgba(254, 44, 85, 0.22);
+  font-weight: 950;
+}
+
+.tiktok-commerce-skin .tng-bridge-form input,
+.tiktok-commerce-skin .tng-bridge-form textarea {
+  border-radius: 14px;
+  border-color: #ececf0;
+  background: #fafafa;
+}
+
+.tiktok-commerce-skin .tng-bridge-toast {
+  bottom: 96px;
+  background: #101010;
+}
+
 .tng-bridge-cart.is-open {
   display: flex;
   justify-content: flex-end;
@@ -203,5 +244,16 @@
   .tng-bridge-panel {
     width: 100vw;
     padding: 18px;
+  }
+
+  .tiktok-commerce-skin .tng-bridge-panel {
+    border-radius: 24px 24px 0 0;
+    width: 100vw;
+    height: min(86vh, 720px);
+    margin-top: auto;
+  }
+
+  .tiktok-commerce-skin .tng-bridge-cart {
+    align-items: end;
   }
 }

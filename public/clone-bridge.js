@@ -164,6 +164,52 @@
     document.head.appendChild(link);
   }
 
+  function buildCommerceShell() {
+    document.body.classList.add("tiktok-commerce-skin");
+
+    if (!document.querySelector(".tng-shop-search")) {
+      const header = document.querySelector(".soul-header");
+      if (header) {
+        const search = document.createElement("form");
+        search.className = "tng-shop-search";
+        search.setAttribute("role", "search");
+        search.innerHTML = `
+          <input type="search" placeholder="Tìm sản phẩm, mã giảm giá, flash sale..." aria-label="Tìm kiếm sản phẩm">
+          <button type="submit">Tìm</button>
+        `;
+        header.insertAdjacentElement("afterend", search);
+        search.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const q = search.querySelector("input")?.value.trim();
+          if (q) window.location.href = `/ca-phe/?s=${encodeURIComponent(q)}`;
+        });
+      }
+    }
+
+    if (!document.querySelector(".tng-mobile-tabbar")) {
+      const nav = document.createElement("nav");
+      nav.className = "tng-mobile-tabbar";
+      nav.setAttribute("aria-label", "Điều hướng nhanh");
+      nav.innerHTML = `
+        <a href="/"><span>⌂</span><strong>Trang chủ</strong></a>
+        <a href="/ca-phe/"><span>▦</span><strong>Danh mục</strong></a>
+        <button type="button" data-tng-open-cart><span>🛒</span><strong>Giỏ hàng</strong></button>
+        <a href="/gio-hang/"><span>✓</span><strong>Thanh toán</strong></a>
+      `;
+      document.body.appendChild(nav);
+    }
+
+    if (!document.querySelector(".tng-flash-strip") && document.querySelector(".product-grid-page")) {
+      const strip = document.createElement("section");
+      strip.className = "tng-flash-strip";
+      strip.innerHTML = `
+        <div><strong>Flash Sale</strong><span>Ưu đãi hôm nay</span></div>
+        <time>02:59:59</time>
+      `;
+      document.querySelector(".product-grid-page")?.insertAdjacentElement("beforebegin", strip);
+    }
+  }
+
   function fillSelect(select, values, placeholder) {
     if (!select) return;
     const current = select.value;
@@ -876,6 +922,13 @@
         return;
       }
 
+      if (event.target.closest("[data-tng-open-cart]")) {
+        event.preventDefault();
+        event.stopPropagation();
+        openCart();
+        return;
+      }
+
       const cartLink = event.target.closest(".header-cart-link, .cart-item a, a[href*='gio-hang']");
       if (cartLink) {
         if (cartLink.matches("a[href*='gio-hang']")) return;
@@ -912,6 +965,7 @@
     updateHeaderCount();
     refreshVariantPrice();
     hydrateAddressSelects();
+    buildCommerceShell();
     renderCheckoutPage();
     normalizeVisibleText();
     rewriteOriginLinks();
