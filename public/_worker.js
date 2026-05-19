@@ -43,7 +43,7 @@ function formatVnd(value) {
 
 function orderStore(env) {
   if (!env.ORDERS_KV) {
-    throw new Error("Missing ORDERS_KV binding. Create a Cloudflare KV namespace and bind it as ORDERS_KV.");
+    throw new Error("Backend chưa nhận KV binding ORDERS_KV. Vào Cloudflare > Workers & Pages > cofffe > Bindings, gắn KV namespace với Variable name đúng là ORDERS_KV rồi redeploy.");
   }
   return env.ORDERS_KV;
 }
@@ -585,7 +585,14 @@ export default {
       }
 
       if (url.pathname === "/api/health" && request.method === "GET") {
-        return json({ ok: true, runtime: "cloudflare-worker" });
+        return json({
+          ok: true,
+          runtime: "cloudflare-worker",
+          bindings: {
+            ORDERS_KV: Boolean(env.ORDERS_KV),
+            ASSETS: Boolean(env.ASSETS),
+          },
+        });
       }
 
       if (url.pathname === "/admin/login" && request.method === "POST") {
