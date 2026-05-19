@@ -1185,6 +1185,39 @@ function renderCartPage() {
   `);
 }
 
+function renderOrderSuccessPage() {
+  return layout("Đặt hàng thành công", "/dat-hang-thanh-cong/", `
+    <main class="order-success-page">
+      <section class="order-success-card">
+        <div class="order-success-mark">✓</div>
+        <p class="order-success-kicker">Đặt hàng thành công</p>
+        <h1>Cảm ơn bạn đã đặt hàng tại TaynguyenSoul</h1>
+        <p class="order-success-copy">Shop đã nhận đơn và sẽ liên hệ xác nhận trong thời gian sớm nhất. Vui lòng giữ điện thoại để nhân viên tư vấn kiểm tra thông tin giao hàng.</p>
+        <div class="order-success-summary">
+          <div><span>Mã đơn</span><strong data-success-order>Đang cập nhật</strong></div>
+          <div><span>Tổng tiền</span><strong data-success-total>Đang cập nhật</strong></div>
+          <div><span>Trạng thái</span><strong>Chờ xác nhận</strong></div>
+        </div>
+        <div class="order-success-actions">
+          <a class="primary" href="/">Tiếp tục mua hàng</a>
+          <a href="/lien-he/">Liên hệ shop</a>
+        </div>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        const order = params.get("order");
+        const total = Number(params.get("total") || 0);
+        const orderNode = document.querySelector("[data-success-order]");
+        const totalNode = document.querySelector("[data-success-total]");
+        if (orderNode && order) orderNode.textContent = order;
+        if (totalNode && total) totalNode.textContent = new Intl.NumberFormat("vi-VN").format(total) + "đ";
+      })();
+    </script>
+  `);
+}
+
 function renderAdminOrdersPage() {
   const rows = orders.map((order) => `
     <tr>
@@ -1259,6 +1292,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/gio-hang/") {
       sendHtml(res, renderCartPage());
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/dat-hang-thanh-cong/") {
+      sendHtml(res, renderOrderSuccessPage());
       return;
     }
 
@@ -1361,7 +1399,7 @@ const server = http.createServer(async (req, res) => {
         id: order.id,
         total: order.total,
         savedTo: "data/orders.json",
-        viewUrl: "/admin/orders"
+        successUrl: `/dat-hang-thanh-cong/?order=${encodeURIComponent(order.id)}&total=${encodeURIComponent(order.total)}`
       });
       return;
     }

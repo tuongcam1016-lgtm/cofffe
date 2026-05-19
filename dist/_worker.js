@@ -520,6 +520,7 @@ async function handlePostOrder(request, env) {
     message: "Đã gửi đơn thành công.",
     id: order.id,
     total: order.total,
+    successUrl: `/dat-hang-thanh-cong/?order=${encodeURIComponent(order.id)}&total=${encodeURIComponent(order.total)}`,
     order: { id: order.id, total: order.total, status: order.status },
   }, 201);
 }

@@ -7,7 +7,8 @@ const routes = [
   "/ca-phe/",
   "/san-pham/ca-phe-rang-xay-nguyen-chat-signature/",
   "/san-pham/bo-may-pha-ca-phe-mini-soriso-quick-shot-qs-soriso-sg1/",
-  "/gio-hang/"
+  "/gio-hang/",
+  "/dat-hang-thanh-cong/"
 ];
 
 function outputPath(route) {

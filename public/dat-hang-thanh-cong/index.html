@@ -1,0 +1,108 @@
+<!doctype html>
+    <html lang="vi">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Đặt hàng thành công - TaynguyenSoul Clone</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="stylesheet" href="/page-styles.css">
+        <link rel="stylesheet" href="/clone-bridge.css">
+      </head>
+      <body class="soul-page">
+        
+    <div class="soul-promo-bar">CỐI XAY CÀ PHÊ NÂNG CẤP TRẢI NGHIỆM <a href="/may-pha-ca-phe-cam-tay/">Mua ngay →</a></div>
+    <header class="soul-header">
+      <button class="mobile-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="soul-nav">
+        <a class="" href="/ca-phe/">Cà phê</a>
+        <a class="" href="/may-pha-ca-phe-cam-tay/">Máy pha cà phê cầm tay</a>
+        <a class="" href="/dung-cu-pha-ca-phe/">Dụng cụ pha cà phê</a>
+      </nav>
+      <a class="soul-logo" href="/">
+        <img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul">
+      </a>
+      <nav class="soul-nav right">
+        <a class="" href="/ve-taynguyensoul/">Về TaynguyenSoul</a>
+        <a class="" href="/blog-ca-phe/">Blog</a>
+        <a class="" href="/lien-he/">Liên hệ</a>
+        <a href="/tai-khoan/" aria-label="Tài khoản">♡</a>
+        <a class="soul-cart-link" href="/gio-hang/">0</a>
+        <a href="/ca-phe/" aria-label="Tìm kiếm">⌕</a>
+      </nav>
+    </header>
+  
+        
+    <main class="order-success-page">
+      <section class="order-success-card">
+        <div class="order-success-mark">✓</div>
+        <p class="order-success-kicker">Đặt hàng thành công</p>
+        <h1>Cảm ơn bạn đã đặt hàng tại TaynguyenSoul</h1>
+        <p class="order-success-copy">Shop đã nhận đơn và sẽ liên hệ xác nhận trong thời gian sớm nhất. Vui lòng giữ điện thoại để nhân viên tư vấn kiểm tra thông tin giao hàng.</p>
+        <div class="order-success-summary">
+          <div><span>Mã đơn</span><strong data-success-order>Đang cập nhật</strong></div>
+          <div><span>Tổng tiền</span><strong data-success-total>Đang cập nhật</strong></div>
+          <div><span>Trạng thái</span><strong>Chờ xác nhận</strong></div>
+        </div>
+        <div class="order-success-actions">
+          <a class="primary" href="/">Tiếp tục mua hàng</a>
+          <a href="/lien-he/">Liên hệ shop</a>
+        </div>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        const order = params.get("order");
+        const total = Number(params.get("total") || 0);
+        const orderNode = document.querySelector("[data-success-order]");
+        const totalNode = document.querySelector("[data-success-total]");
+        if (orderNode && order) orderNode.textContent = order;
+        if (totalNode && total) totalNode.textContent = new Intl.NumberFormat("vi-VN").format(total) + "đ";
+      })();
+    </script>
+  
+        
+    <footer class="soul-footer">
+      <div class="soul-footer-contact">
+        <img class="soul-footer-logo" src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-300.png" alt="TaynguyenSoul">
+        <div class="footer-contact-pill"><span>☎</span><small>Hotline</small><strong>0931.863.826</strong></div>
+        <div class="footer-contact-pill"><span>✉</span><small>Email</small><strong>soul@taynguyensoul.vn</strong></div>
+        <div class="footer-socials" aria-label="Social">
+          <span>f</span><span>◎</span><span>𝕏</span><span>▶</span><span>♬</span><span>in</span><span>▶</span>
+        </div>
+      </div>
+      <div class="soul-footer-inner">
+        <div>
+          <h3>ĐỊA CHỈ LIÊN HỆ</h3>
+          <p>TP.HCM: 99 Tô Hiệu (chỉ Ship Hàng Online)</p>
+          <p><em>Kho hàng xử lý đơn online, khách có thể đặt online hoặc liên hệ nhà Soul sẽ ship tận nhà.</em></p>
+          <p><em>Nếu Quý Khách cần gấp nhà Soul có hỗ trợ giao hàng 2h với Ahamove trong HCM - Liên hệ Hotline: 0931.863.826</em></p>
+          <p>Taynguyen Soul lắng nghe bạn! Chúng tôi luôn trân trọng mọi đóng góp nhằm được cải thiện dịch vụ.</p>
+          <a class="footer-feedback" href="/lien-he/">GÓP Ý KIẾN</a>
+        </div>
+        <div>
+          <h3>CHÍNH SÁCH</h3>
+          <p><a href="/ve-taynguyensoul/">Về TaynguyenSoul</a></p>
+          <p><a href="/chinh-sach-doi-hang/">Chính sách đổi trả</a></p>
+          <p><a href="/chinh-sach-giao-hang/">Chính sách giao hàng</a></p>
+          <p><a href="/chinh-sach-bao-mat-2/">Chính sách bảo mật</a></p>
+          <p><a href="/thong-tin-ve-xuong-rang/">Thông tin về xưởng rang</a></p>
+        </div>
+        <div>
+          <h3>TRUY CẬP NHANH</h3>
+          <p><a href="/hoi-dap/">Hỏi đáp</a></p>
+          <p><a href="/lien-he/">Liên hệ</a></p>
+          <p><a href="/tai-khoan/">Tài khoản</a></p>
+        </div>
+        <div>
+          <h3>Taynguyen Soul trên MXH</h3>
+          <p><span class="footer-badge">DMCA PROTECTED</span></p>
+          <p><span class="footer-badge light">SecureCheckout Verified</span></p>
+        </div>
+      </div>
+      <div class="soul-footer-copy">Copyright 2026 © TaynguyenSoul.vn | Made with ♡ by TaynguyenSoul Team</div>
+    </footer>
+  
+        <script src="/clone-bridge.js"></script>
+      </body>
+    </html>

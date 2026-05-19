@@ -667,6 +667,18 @@
     }, 3200);
   }
 
+  function completeOrderAndRedirect(order = {}, payload = {}) {
+    const orderId = order.id || payload.id || "";
+    const total = order.total || payload.total || 0;
+    state.cart = [];
+    saveCart();
+    updateHeaderCount();
+    const params = new URLSearchParams();
+    if (orderId) params.set("order", orderId);
+    if (total) params.set("total", String(total));
+    window.location.href = `/dat-hang-thanh-cong/${params.toString() ? `?${params.toString()}` : ""}`;
+  }
+
   async function checkout() {
     const status = document.querySelector("#tngBridgeStatus");
     const form = document.querySelector("#tngBridgeForm");
@@ -713,6 +725,8 @@
       }
 
       const order = payload.order || payload;
+      completeOrderAndRedirect(order, payload);
+      return;
       state.cart = [];
       saveCart();
       renderCart();
@@ -748,6 +762,7 @@
     if (!form.reportValidity()) return;
     const formData = new FormData(form);
     status.textContent = "Đang gửi đơn...";
+    status.className = "checkout-page-status loading";
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -781,10 +796,13 @@
       });
       const payload = await response.json();
       if (!response.ok) {
+        status.className = "checkout-page-status error";
         status.textContent = payload.message || "Không gửi được đơn.";
         return;
       }
       const order = payload.order || payload;
+      completeOrderAndRedirect(order, payload);
+      return;
       state.cart = [];
       saveCart();
       renderCart();
@@ -799,6 +817,7 @@
       `;
       showToast(`Đã gửi đơn ${order.id || payload.id}`);
     } catch (error) {
+      status.className = "checkout-page-status error";
       status.textContent = "Không gửi được đơn. Vui lòng thử lại.";
     }
   }
