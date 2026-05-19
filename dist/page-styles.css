@@ -25,6 +25,9 @@
   color: var(--shop-ink);
   font-family: Inter, "TikTok Sans", Arial, Helvetica, sans-serif;
   letter-spacing: 0;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
 }
 
@@ -75,11 +78,17 @@
 .tiktok-commerce-skin .buy-now,
 .tiktok-commerce-skin .place-order,
 .tiktok-commerce-skin .coupon-entry button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 18px;
   border: 0;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--shop-red), var(--shop-orange));
   color: #fff;
-  font-weight: 900;
+  font-weight: 850;
+  line-height: 1.25;
   box-shadow: 0 10px 22px rgba(254, 44, 85, 0.22);
   transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
@@ -433,7 +442,8 @@ body.soul-page {
   gap: 28px;
   align-items: center;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 780;
+  line-height: 1.35;
   text-transform: uppercase;
 }
 
@@ -457,6 +467,10 @@ body.soul-page {
 }
 
 .soul-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding-block: 6px;
   color: #222;
   text-decoration: none;
 }
@@ -960,21 +974,28 @@ body.soul-page {
   cursor: pointer;
   border-radius: 8px;
   font-weight: 800;
+  line-height: 1.25;
 }
 
 .add-cart {
   min-width: 180px;
-  min-height: 46px;
+  min-height: 50px;
+  padding: 12px 18px;
   background: var(--soul-green);
   color: #fff;
   font-size: 16px;
 }
 
 .buy-now {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
   width: 335px;
   max-width: 100%;
   min-height: 56px;
+  padding: 13px 18px;
   margin: 14px 0 24px 122px;
   background: #b53225;
   color: #fff;
@@ -992,6 +1013,7 @@ body.soul-page {
 .buy-now span {
   display: block;
   font-size: 12px;
+  line-height: 1.25;
   text-transform: none;
 }
 
