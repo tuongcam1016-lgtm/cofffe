@@ -204,10 +204,32 @@
       strip.className = "tng-flash-strip";
       strip.innerHTML = `
         <div><strong>Flash Sale</strong><span>Ưu đãi hôm nay</span></div>
-        <time>02:59:59</time>
+        <time data-flash-countdown aria-live="polite">02:59:59</time>
       `;
       document.querySelector(".product-grid-page")?.insertAdjacentElement("beforebegin", strip);
     }
+  }
+
+  function startFlashCountdown() {
+    const nodes = Array.from(document.querySelectorAll("[data-flash-countdown], .tng-flash-strip time"));
+    if (!nodes.length) return;
+    window.clearInterval(startFlashCountdown.timer);
+    const saleWindowMs = 3 * 60 * 60 * 1000;
+    const pad = (value) => String(value).padStart(2, "0");
+    const render = () => {
+      const remaining = saleWindowMs - (Date.now() % saleWindowMs);
+      const totalSeconds = Math.max(0, Math.floor(remaining / 1000));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      const value = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      nodes.forEach((node) => {
+        node.textContent = value;
+        node.setAttribute("datetime", `PT${hours}H${minutes}M${seconds}S`);
+      });
+    };
+    render();
+    startFlashCountdown.timer = window.setInterval(render, 1000);
   }
 
   function fillSelect(select, values, placeholder) {
@@ -988,6 +1010,7 @@
     renderCheckoutPage();
     normalizeVisibleText();
     rewriteOriginLinks();
+    startFlashCountdown();
     wireEvents();
     scheduleProductVideoAutoplay();
     scheduleMiniVideoPopup();
