@@ -224,7 +224,7 @@ async function checkout() {
   saveCart();
   renderCart();
   checkoutForm.reset();
-  orderStatus.textContent = `Đã tạo đơn demo ${order.id} - tổng ${currency.format(order.total)}.`;
+  orderStatus.textContent = `Đã tạo đơn ${order.id} - tổng ${currency.format(order.total)}.`;
 }
 
 categoryTabs.addEventListener("click", (event) => {

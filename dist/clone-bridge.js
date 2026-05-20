@@ -495,7 +495,7 @@
           <span>Tạm tính</span>
           <strong id="tngBridgeTotal">0₫</strong>
         </div>
-        <button id="tngBridgeCheckout" class="tng-bridge-checkout" type="button">Gửi đơn demo</button>
+        <button id="tngBridgeCheckout" class="tng-bridge-checkout" type="button">Đặt hàng</button>
         <div id="tngBridgeSuccess" class="tng-bridge-success" hidden></div>
         <p id="tngBridgeStatus" class="tng-bridge-status"></p>
       </div>

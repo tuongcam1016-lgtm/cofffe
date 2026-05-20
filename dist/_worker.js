@@ -232,7 +232,7 @@ function renderLoginPro(message = "") {
         <span>TaynguyenSoul Seller Center</span>
       </div>
       <h1>Đăng nhập quản lý đơn</h1>
-      <p class="muted">Khu vực quản trị đã được khóa. Khách hàng chỉ thấy trang cảm ơn sau khi đặt hàng, không thấy dữ liệu backend.</p>
+      <p class="muted">Khu vực quản trị đã được khóa. Khách hàng chỉ thấy trang cảm ơn sau khi đặt hàng.</p>
       <form method="post" action="/admin/login">
         <label for="password">Mật khẩu admin</label>
         <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
@@ -277,7 +277,7 @@ function renderAdminOrders(orders) {
         </div>
         <nav class="admin-nav">
           <a href="/">Xem website</a>
-          <a href="/api/orders" class="primary">API đơn hàng</a>
+          <a href="/api/orders.csv" class="primary">Xuất CSV</a>
           <form method="post" action="/admin/logout"><button type="submit">Đăng xuất</button></form>
         </nav>
       </header>
@@ -548,7 +548,7 @@ function renderSellerDashboard(orders) {
           <div class="seller-panel"><h2>Cảnh báo vận hành</h2>
             <p class="muted">Low stock: cần đồng bộ từ hệ sản phẩm thật.</p>
             <p class="muted">Flash sale: cần kiểm soát giá theo campaign và cache tag.</p>
-            <p class="muted">API orders đã khóa bằng ADMIN_TOKEN.</p>
+            <p class="muted">Dữ liệu đơn hàng đã khóa bằng ADMIN_TOKEN.</p>
           </div>
         </section>
         <div class="seller-toolbar">
@@ -711,7 +711,7 @@ function renderSellerDashboardPro(orders, env = {}) {
           </div></div>
           <div class="seller-panel"><h2>Cảnh báo hệ thống</h2><div class="seller-alerts">
             <div class="seller-alert"><strong>Lưu trữ đơn</strong>${escapeHtml(storage)}</div>
-            <div class="seller-alert"><strong>Bảo mật</strong>Admin/API đã khóa bằng mật khẩu. Khách không thấy link backend sau khi đặt hàng.</div>
+            <div class="seller-alert"><strong>Bảo mật</strong>Khu vực quản trị đã khóa bằng mật khẩu. Khách chỉ thấy trang cảm ơn sau khi đặt hàng.</div>
             <div class="seller-alert"><strong>Vận hành</strong>CSV export và cập nhật trạng thái đã sẵn sàng.</div>
           </div></div>
         </section>
@@ -860,7 +860,7 @@ function renderCommerceAdminDashboard(orders, env = {}) {
         </section>
         <section class="ca-panels">
           <div class="ca-panel"><h2>Top sản phẩm bán chạy</h2><div class="ca-products">${(summary.topProducts.length ? summary.topProducts : [{ name: "Chưa có dữ liệu", quantity: 0, revenue: 0 }]).map((product) => `<div class="ca-rowbar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round(product.quantity / maxProduct * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div></div>
-          <div class="ca-panel"><h2>Tình trạng hệ thống</h2><div class="ca-ops"><div class="ca-alert"><strong>Lưu trữ</strong>${escapeHtml(storage)}</div><div class="ca-alert"><strong>Bảo mật</strong>Admin/API đã khóa; khách không thấy backend.</div><div class="ca-alert"><strong>Checkout</strong>Đặt hàng chuyển sang trang cảm ơn riêng.</div></div></div>
+          <div class="ca-panel"><h2>Tình trạng hệ thống</h2><div class="ca-ops"><div class="ca-alert"><strong>Lưu trữ</strong>${escapeHtml(storage)}</div><div class="ca-alert"><strong>Bảo mật</strong>Khu vực quản trị đã khóa bằng đăng nhập.</div><div class="ca-alert"><strong>Checkout</strong>Đặt hàng chuyển sang trang cảm ơn riêng.</div></div></div>
         </section>
         <section id="orders" class="ca-panel">
           <h2>Quản lý đơn hàng</h2>
@@ -1110,7 +1110,7 @@ export default {
 
       return env.ASSETS.fetch(request);
     } catch (error) {
-      return json({ message: error.message || "Cloudflare backend error." }, 500);
+      return json({ message: error.message || "Cloudflare service error." }, 500);
     }
   },
 };

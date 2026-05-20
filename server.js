@@ -968,7 +968,7 @@ function renderProductPage(product) {
           <div class="product-gallery">
             <div class="product-thumbs">
               ${media.map(renderGalleryThumb).join("")}
-              <button class="product-video-thumb" type="button" data-video-open data-video-src="${escapeHtml(productVideo.embed)}" aria-label="Xem video san pham">
+              <button class="product-video-thumb" type="button" data-video-open data-video-src="${escapeHtml(productVideo.embed)}" aria-label="Xem video sản phẩm">
                 <img src="${escapeHtml(productVideo.thumbnail)}" alt="">
                 <span>▶</span>
               </button>
@@ -978,7 +978,7 @@ function renderProductPage(product) {
               <iframe title="${escapeHtml(product.name)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen data-video-inline-frame></iframe>
               <video muted playsinline loop data-video-native></video>
             </div>
-            <button class="video-play-button${firstVideo ? "" : " is-hidden"}" type="button" ${firstVideo ? `data-video-open data-video-src="${escapeHtml(firstVideo.src)}"` : `aria-hidden="true"`} aria-label="Xem video san pham">
+            <button class="video-play-button" type="button" data-gallery-media data-gallery-index="${media.length}" data-media-type="${escapeHtml(firstVideo?.type || "youtube")}" data-media-src="${escapeHtml(firstVideo?.src || productVideo.embed)}" data-video-open data-video-src="${escapeHtml(firstVideo?.src || productVideo.embed)}" aria-label="Xem video sản phẩm">
               <span>▶</span>
             </button>
             <button class="gallery-arrow prev" type="button">‹</button>
@@ -1060,7 +1060,7 @@ function renderCategoryPage(pathname) {
       <section class="page-hero">
         <div class="soul-breadcrumb"><a href="/">Trang chủ</a> / ${escapeHtml(title)}</div>
         <h1>${escapeHtml(title)}</h1>
-        <p>Danh sách sản phẩm được dựng local từ các dữ liệu công khai trên bản TaynguyenSoul đã lưu. Các nút mua hàng kết nối về backend clone.</p>
+        <p>Danh sách sản phẩm được dựng lại để khách có thể xem, chọn biến thể và đặt hàng trực tiếp trên website.</p>
       </section>
       <section class="product-grid-page">${list.map(productCard).join("")}</section>
     </main>
@@ -1259,7 +1259,7 @@ function renderAdminOrdersPage() {
       <section class="admin-orders">
         <div class="soul-breadcrumb"><a href="/">Trang chủ</a> / Quản lý đơn</div>
         <h1>Đơn hàng clone</h1>
-        <p>Dữ liệu đang được lưu tại <code>data/orders.json</code>. API JSON: <a href="/api/orders">/api/orders</a>.</p>
+        <p>Dữ liệu đơn hàng được lưu nội bộ và chỉ hiển thị sau khi đăng nhập quản trị.</p>
         <div class="admin-table-wrap">
           <table class="admin-orders-table">
             <thead>
@@ -1370,19 +1370,19 @@ function renderAdminSellerCenterPage() {
     <div class="admin-app">
       <aside class="admin-sidebar">
         <div class="admin-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div>
-        <nav class="admin-menu"><a class="active" href="/admin/orders">Tổng quan</a><a href="/admin/orders">Đơn hàng</a><a href="/">Xem shop</a><a href="/api/orders">API orders</a></nav>
+        <nav class="admin-menu"><a class="active" href="/admin/orders">Tổng quan</a><a href="/admin/orders">Đơn hàng</a><a href="/">Xem shop</a></nav>
       </aside>
       <main class="admin-main">
-        <div class="admin-topbar"><div class="admin-title"><h1>Quản lý vận hành</h1><p>Dashboard local cho đơn hàng, doanh thu và xử lý trạng thái.</p></div><div class="admin-actions"><a href="/" target="_blank">Xem website</a><a class="hot" href="/api/orders">Xem JSON</a></div></div>
+        <div class="admin-topbar"><div class="admin-title"><h1>Quản lý vận hành</h1><p>Dashboard cho đơn hàng, doanh thu và xử lý trạng thái.</p></div><div class="admin-actions"><a href="/" target="_blank">Xem website</a></div></div>
         <section class="admin-kpis">
           <div class="admin-kpi"><span>Doanh thu</span><strong>${totalRevenue.toLocaleString("vi-VN")}đ</strong><em>Local data/orders.json</em></div>
           <div class="admin-kpi"><span>Đơn hàng</span><strong>${orders.length}</strong><em>${todayOrders.length} đơn hôm nay</em></div>
           <div class="admin-kpi"><span>Cần xử lý</span><strong>${pendingOrders}</strong><em>Mới + đang xử lý</em></div>
-          <div class="admin-kpi"><span>Conversion</span><strong>${orders.length ? "3.8" : "0.0"}%</strong><em>Ước tính demo</em></div>
+          <div class="admin-kpi"><span>Conversion</span><strong>${orders.length ? "3.8" : "0.0"}%</strong><em>Ước tính từ dữ liệu hiện có</em></div>
         </section>
         <section class="admin-panels">
           <div class="admin-panel"><h2>Top sản phẩm</h2><div class="admin-bars">${(topProducts.length ? topProducts : [{ name: "Chưa có dữ liệu", quantity: 0 }]).map((product) => `<div class="admin-bar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round((product.quantity / maxQty) * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div></div>
-          <div class="admin-panel"><h2>Cảnh báo vận hành</h2><div class="admin-alert"><strong>Lưu trữ</strong>Local đang dùng data/orders.json. Cloudflare production dùng KV ORDERS_KV.</div><div class="admin-alert"><strong>Quyền truy cập</strong>Production đã có màn đăng nhập admin, khách không thấy backend.</div><div class="admin-alert"><strong>Checkout</strong>Đặt hàng chuyển sang trang cảm ơn riêng.</div></div>
+          <div class="admin-panel"><h2>Cảnh báo vận hành</h2><div class="admin-alert"><strong>Lưu trữ</strong>Local đang dùng data/orders.json. Cloudflare production dùng KV ORDERS_KV.</div><div class="admin-alert"><strong>Quyền truy cập</strong>Khu vực quản trị đã có màn đăng nhập riêng.</div><div class="admin-alert"><strong>Checkout</strong>Đặt hàng chuyển sang trang cảm ơn riêng.</div></div>
         </section>
         <div class="admin-toolbar"><input class="admin-search" type="search" placeholder="Tìm mã đơn, khách hàng, điện thoại, sản phẩm..." data-admin-search><div class="admin-filters"><button class="admin-chip is-active" data-status-filter="">Tất cả</button>${Object.entries(statusLabels).map(([value, label]) => `<button class="admin-chip" data-status-filter="${value}">${label}</button>`).join("")}</div></div>
         <div class="admin-table-wrap"><table class="admin-orders-table"><thead><tr><th></th><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr></thead><tbody>${rows || `<tr><td colspan="6">Chưa có đơn hàng.</td></tr>`}</tbody></table></div>
@@ -1550,12 +1550,12 @@ function renderAdminCommerceDashboard() {
     <script type="application/json" id="admin-orders-json">${safeJson(orders)}</script>
     <script type="application/json" id="admin-summary-json">${safeJson(summary)}</script>
     <div class="admin-v2">
-      <aside class="admin-v2-sidebar"><div class="admin-v2-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div><nav class="admin-v2-menu"><a class="active" href="/admin/orders">Tổng quan</a><a href="#orders">Đơn hàng</a><a href="#analytics">Phân tích</a><a href="/api/orders">API JSON</a><a href="/">Xem shop</a></nav></aside>
+      <aside class="admin-v2-sidebar"><div class="admin-v2-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div><nav class="admin-v2-menu"><a class="active" href="/admin/orders">Tổng quan</a><a href="#orders">Đơn hàng</a><a href="#analytics">Phân tích</a><a href="/api/orders.csv">Xuất CSV</a><a href="/">Xem shop</a></nav></aside>
       <main class="admin-v2-main">
-        <div class="admin-v2-topbar"><div class="admin-v2-title"><h1>Quản lý vận hành</h1><p>Dashboard đơn hàng realtime, tối ưu cho thao tác nhanh như Seller Center.</p></div><div class="admin-v2-actions"><input class="admin-v2-search" data-global-search placeholder="Tìm nhanh đơn, khách, SĐT..."><button type="button" data-theme-toggle>Light mode</button><a class="hot" href="/api/orders">Xem JSON</a></div></div>
-        <section class="admin-v2-kpis"><div class="admin-v2-kpi"><span>Doanh thu</span><strong>${money(summary.revenue)}</strong><em>Hôm nay ${money(summary.todayRevenue)}</em></div><div class="admin-v2-kpi"><span>Đơn hàng</span><strong>${summary.totalOrders}</strong><em>${summary.todayOrders} đơn hôm nay</em></div><div class="admin-v2-kpi"><span>Cần xử lý</span><strong>${summary.pendingOrders}</strong><em>Mới + đang xử lý</em></div><div class="admin-v2-kpi"><span>AOV</span><strong>${money(summary.aov)}</strong><em>Giá trị đơn TB</em></div><div class="admin-v2-kpi"><span>Conversion</span><strong>${summary.conversionRate}%</strong><em>Demo estimate</em></div></section>
+        <div class="admin-v2-topbar"><div class="admin-v2-title"><h1>Quản lý vận hành</h1><p>Dashboard đơn hàng realtime, tối ưu cho thao tác nhanh như Seller Center.</p></div><div class="admin-v2-actions"><input class="admin-v2-search" data-global-search placeholder="Tìm nhanh đơn, khách, SĐT..."><button type="button" data-theme-toggle>Light mode</button><a class="hot" href="/api/orders.csv">Export CSV</a></div></div>
+        <section class="admin-v2-kpis"><div class="admin-v2-kpi"><span>Doanh thu</span><strong>${money(summary.revenue)}</strong><em>Hôm nay ${money(summary.todayRevenue)}</em></div><div class="admin-v2-kpi"><span>Đơn hàng</span><strong>${summary.totalOrders}</strong><em>${summary.todayOrders} đơn hôm nay</em></div><div class="admin-v2-kpi"><span>Cần xử lý</span><strong>${summary.pendingOrders}</strong><em>Mới + đang xử lý</em></div><div class="admin-v2-kpi"><span>AOV</span><strong>${money(summary.aov)}</strong><em>Giá trị đơn TB</em></div><div class="admin-v2-kpi"><span>Conversion</span><strong>${summary.conversionRate}%</strong><em>Ước tính từ dữ liệu hiện có</em></div></section>
         <section id="analytics" class="admin-v2-panels"><div class="admin-v2-panel"><h2>Doanh thu 7 ngày</h2><div class="admin-v2-chart">${summary.revenue7Days.map((day) => `<div title="${money(day.revenue)} / ${day.orders} đơn"><i style="height:${Math.max(8, Math.round(day.revenue / maxRevenue * 150))}px"></i><span>${day.day.slice(5)}</span></div>`).join("")}</div></div><div class="admin-v2-panel"><h2>Trạng thái đơn</h2>${Object.entries(summary.statusLabels).map(([key, label]) => `<div class="admin-v2-rowbar"><span>${label}</span><i style="width:${Math.max(8, Math.round((summary.statusCount[key] || 0) / maxStatus * 100))}%"></i><b>${summary.statusCount[key] || 0}</b></div>`).join("")}</div></section>
-        <section class="admin-v2-panels"><div class="admin-v2-panel"><h2>Top sản phẩm bán chạy</h2>${(summary.topProducts.length ? summary.topProducts : [{ name: "Chưa có dữ liệu", quantity: 0, revenue: 0 }]).map((product) => `<div class="admin-v2-rowbar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round(product.quantity / maxProduct * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div><div class="admin-v2-panel"><h2>Tình trạng hệ thống</h2><div class="admin-v2-ops"><div class="admin-v2-alert"><strong>Lưu trữ</strong>Local data/orders.json</div><div class="admin-v2-alert"><strong>Bảo mật</strong>Production có login admin; khách không thấy backend.</div><div class="admin-v2-alert"><strong>Checkout</strong>Chuyển sang trang cảm ơn riêng.</div></div></div></section>
+        <section class="admin-v2-panels"><div class="admin-v2-panel"><h2>Top sản phẩm bán chạy</h2>${(summary.topProducts.length ? summary.topProducts : [{ name: "Chưa có dữ liệu", quantity: 0, revenue: 0 }]).map((product) => `<div class="admin-v2-rowbar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round(product.quantity / maxProduct * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div><div class="admin-v2-panel"><h2>Tình trạng hệ thống</h2><div class="admin-v2-ops"><div class="admin-v2-alert"><strong>Lưu trữ</strong>Local data/orders.json</div><div class="admin-v2-alert"><strong>Bảo mật</strong>Khu vực quản trị đã khóa bằng đăng nhập.</div><div class="admin-v2-alert"><strong>Checkout</strong>Chuyển sang trang cảm ơn riêng.</div></div></div></section>
         <section id="orders" class="admin-v2-panel"><h2>Quản lý đơn hàng</h2><div class="admin-v2-toolbar"><input class="admin-v2-input" data-table-search placeholder="Tìm mã đơn, khách hàng, SĐT, sản phẩm"><input class="admin-v2-input" type="date" data-date-filter><select class="admin-v2-select" data-sort><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="total-desc">Tổng tiền cao</option><option value="total-asc">Tổng tiền thấp</option></select><button class="admin-v2-chip" type="button" data-clear-filters>Xóa lọc</button></div><div class="admin-v2-tabs"><button class="admin-v2-chip is-active" data-status-filter="">Tất cả</button>${Object.entries(summary.statusLabels).map(([key, label]) => `<button class="admin-v2-chip" data-status-filter="${key}">${label}</button>`).join("")}</div><div class="admin-v2-table-wrap"><table class="admin-v2-table"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody data-orders-body></tbody></table></div></section>
       </main>
     </div>
@@ -1612,7 +1612,7 @@ function renderLocalAdminLogin(message = "") {
     <main class="local-login">
       <div class="local-login-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>TaynguyenSoul Seller Center</span></div>
       <h1>Đăng nhập quản lý</h1>
-      <p>Khu vực admin chỉ dành cho quản trị viên. Khách hàng không xem được dữ liệu đơn hàng hoặc API backend.</p>
+      <p>Khu vực quản trị chỉ dành cho quản trị viên. Khách hàng không xem được dữ liệu đơn hàng.</p>
       <form method="post" action="/admin/login">
         <label for="password">Mật khẩu admin</label>
         <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
