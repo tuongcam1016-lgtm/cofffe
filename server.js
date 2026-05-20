@@ -995,7 +995,7 @@ function renderProductPage(product) {
             <div class="option-list" data-option-group="weight">
               <button type="button" data-option-value="250g" data-price-multiplier="1">250g</button>
               <button type="button" data-option-value="500g" data-price-multiplier="2">500g <span class="deal">-29%</span></button>
-              <button type="button" class="selected" data-option-value="1kg(2 gói 500g)" data-price-multiplier="3.68">1kg(2 gói 500g) <span class="deal">-31%</span></button>
+              <button type="button" class="selected" data-option-value="1kg(2 gói 500g)" data-price-multiplier="3.68"><span class="best-seller-mini">Best Seller</span>1kg(2 gói 500g) <span class="deal">-31%</span></button>
             </div>
           </div>
           <div class="option-row">

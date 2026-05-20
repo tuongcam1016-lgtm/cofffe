@@ -317,9 +317,14 @@
     const oldPrice = Math.round(price * 1.32);
     const priceNode = document.querySelector("[data-variant-price]");
     const oldPriceNode = document.querySelector("[data-variant-old-price]");
+    const topPriceNode = document.querySelector(".product-detail .price-range");
     const weightNode = document.querySelector("[data-selected-weight]");
     const sessionNode = document.querySelector("[data-session-count]");
     if (priceNode) priceNode.textContent = formatVnd(price);
+    if (topPriceNode) {
+      topPriceNode.textContent = formatVnd(price);
+      topPriceNode.dataset.currentPrice = String(price);
+    }
     if (oldPriceNode) oldPriceNode.textContent = formatVnd(oldPrice);
     if (weightNode) weightNode.textContent = active.weight || "";
     if (sessionNode) {

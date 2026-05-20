@@ -916,6 +916,23 @@ body.soul-page {
   color: #fff;
 }
 
+.option-list .best-seller-mini {
+  position: absolute;
+  top: -10px;
+  left: 8px;
+  z-index: 1;
+  border-radius: 999px;
+  padding: 2px 6px;
+  background: linear-gradient(135deg, #ff2f55, #ff6a00);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: 0 4px 10px rgba(255, 47, 85, 0.22);
+  pointer-events: none;
+}
+
 .detail-price {
   margin: 26px 0 12px;
   border-top: 1px dashed #ddd;
