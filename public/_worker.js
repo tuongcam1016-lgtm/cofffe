@@ -213,6 +213,36 @@ function renderLogin(message = "") {
   `);
 }
 
+function renderLoginPro(message = "") {
+  return layout("Đăng nhập quản lý đơn", `
+    <style>
+      body { background:#0f1117; color:#f7f7f8; font-family:Inter, Arial, Helvetica, sans-serif; }
+      .top { background:linear-gradient(90deg,#111,#fe2c55,#ff6a00); color:#fff; }
+      .login-card { width:min(460px, calc(100% - 32px)); margin:82px auto; background:#151821; border:1px solid rgba(255,255,255,.1); border-radius:22px; padding:28px; box-shadow:0 24px 80px rgba(0,0,0,.35); }
+      .brand { color:#fff; }
+      .login-card h1 { color:#fff; font-size:28px; letter-spacing:-.04em; }
+      .muted { color:#a7adba; line-height:1.5; }
+      input[type=password] { background:#10131b; color:#fff; border:1px solid rgba(255,255,255,.16); border-radius:14px; min-height:48px; }
+      .btn { background:linear-gradient(135deg,#fe2c55,#ff6a00); border-radius:999px; min-height:48px; }
+      .notice { color:#ffb3b3; }
+    </style>
+    <main class="login-card">
+      <div class="brand">
+        <img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul">
+        <span>TaynguyenSoul Seller Center</span>
+      </div>
+      <h1>Đăng nhập quản lý đơn</h1>
+      <p class="muted">Khu vực quản trị đã được khóa. Khách hàng chỉ thấy trang cảm ơn sau khi đặt hàng, không thấy dữ liệu backend.</p>
+      <form method="post" action="/admin/login">
+        <label for="password">Mật khẩu admin</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+        <button class="btn" type="submit">Đăng nhập</button>
+      </form>
+      ${message ? `<p class="notice">${escapeHtml(message)}</p>` : ""}
+    </main>
+  `);
+}
+
 function renderAdminOrders(orders) {
   const totalRevenue = orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
   const today = new Date().toISOString().slice(0, 10);
@@ -491,6 +521,171 @@ function renderSellerDashboard(orders) {
   `);
 }
 
+function renderSellerDashboardPro(orders, env = {}) {
+  const analytics = computeOrderAnalytics(orders);
+  const storage = orderStorageLabel(env);
+  const statusLabels = {
+    new: "Mới",
+    processing: "Đang xử lý",
+    packed: "Đã đóng gói",
+    shipped: "Đang giao",
+    completed: "Hoàn tất",
+    cancelled: "Đã hủy",
+  };
+  const maxProductQty = Math.max(1, ...analytics.topProducts.map((product) => product.quantity));
+  const rows = orders.slice().reverse().map((order) => {
+    const customer = order.customer || {};
+    const address = [customer.address, customer.ward, customer.district, customer.city].filter(Boolean).join(", ");
+    const items = (order.items || []).map((item) => `
+      <div class="seller-line-item">
+        <strong>${escapeHtml(item.name)}</strong>
+        <span>${Number(item.quantity) || 1} x ${formatVnd(item.price)}</span>
+      </div>
+    `).join("");
+    const status = order.status || "new";
+    const options = Object.entries(statusLabels)
+      .map(([value, label]) => `<option value="${value}" ${value === status ? "selected" : ""}>${label}</option>`)
+      .join("");
+    return `
+      <tr data-status="${escapeHtml(status)}">
+        <td><input type="checkbox" aria-label="Chọn đơn ${escapeHtml(order.id)}"></td>
+        <td><strong>${escapeHtml(order.id)}</strong><span>${escapeHtml(new Date(order.createdAt).toLocaleString("vi-VN"))}</span></td>
+        <td><strong>${escapeHtml(customer.name || "Khách lẻ")}</strong><span>${escapeHtml(customer.phone || "")}</span><span>${escapeHtml(address || customer.email || "")}</span></td>
+        <td>${items || "<span>Không có sản phẩm</span>"}</td>
+        <td><strong>${formatVnd(order.total)}</strong></td>
+        <td>
+          <form class="seller-status-form" method="post" action="/api/orders/status">
+            <input type="hidden" name="id" value="${escapeHtml(order.id)}">
+            <select name="status" onchange="this.form.submit()" aria-label="Cập nhật trạng thái đơn ${escapeHtml(order.id)}">${options}</select>
+          </form>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  return layout("TaynguyenSoul Seller Center", `
+    <style>
+      body { background:#0f1117; color:#f7f7f8; font-family:Inter, Arial, Helvetica, sans-serif; }
+      .top { background:linear-gradient(90deg,#111,#fe2c55,#ff6a00); color:#fff; }
+      .seller-app { display:grid; grid-template-columns:248px minmax(0,1fr); min-height:calc(100vh - 36px); }
+      .seller-sidebar { position:sticky; top:0; height:calc(100vh - 36px); padding:22px 16px; background:#151821; border-right:1px solid rgba(255,255,255,.08); }
+      .seller-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; color:#fff; font-size:18px; font-weight:950; }
+      .seller-brand img { width:42px; height:42px; object-fit:contain; background:#fff; border-radius:12px; padding:4px; }
+      .seller-menu { display:grid; gap:8px; }
+      .seller-menu a, .seller-menu button { border:0; border-radius:14px; padding:12px 13px; background:transparent; color:#bec3cf; text-align:left; text-decoration:none; font-weight:850; cursor:pointer; }
+      .seller-menu a.active, .seller-menu a:hover, .seller-menu button:hover { background:#242937; color:#fff; }
+      .seller-main { min-width:0; padding:22px; overflow:hidden; }
+      .seller-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+      .seller-title h1 { margin:0; color:#fff; font-size:32px; letter-spacing:-.04em; }
+      .seller-title p { margin:7px 0 0; color:#9ca3af; }
+      .seller-actions { display:flex; gap:10px; flex-wrap:wrap; }
+      .seller-actions a { border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:10px 14px; background:#1f2430; color:#fff; text-decoration:none; font-weight:900; }
+      .seller-actions .hot { background:linear-gradient(135deg,#fe2c55,#ff6a00); border:0; }
+      .seller-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+      .seller-card { border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:16px; background:linear-gradient(180deg,#1a1f2b,#151923); box-shadow:0 18px 50px rgba(0,0,0,.24); }
+      .seller-card span { display:block; color:#9ca3af; font-size:13px; font-weight:850; text-transform:uppercase; }
+      .seller-card strong { display:block; margin-top:8px; color:#fff; font-size:26px; letter-spacing:-.03em; }
+      .seller-card em { display:block; margin-top:8px; color:#25f4ee; font-style:normal; font-weight:850; font-size:13px; }
+      .seller-panels { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr); gap:14px; margin-bottom:16px; }
+      .seller-panel { border:1px solid rgba(255,255,255,.08); border-radius:20px; background:#151923; padding:16px; }
+      .seller-panel h2 { margin:0 0 12px; color:#fff; font-size:16px; }
+      .seller-bars { display:grid; gap:10px; }
+      .seller-bar { display:grid; grid-template-columns:180px 1fr auto; gap:10px; align-items:center; color:#d8dce5; }
+      .seller-bar span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#d8dce5; }
+      .seller-bar i { height:10px; border-radius:999px; background:linear-gradient(90deg,#25f4ee,#fe2c55); display:block; }
+      .seller-alerts { display:grid; gap:10px; }
+      .seller-alert { border-radius:14px; padding:12px; background:#1f2430; color:#d8dce5; }
+      .seller-alert strong { display:block; color:#fff; margin-bottom:4px; }
+      .seller-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+      .seller-search { width:min(520px,100%); min-height:44px; border:1px solid rgba(255,255,255,.1); border-radius:14px; background:#10131b; color:#fff; padding:0 14px; }
+      .seller-filters { display:flex; gap:8px; flex-wrap:wrap; }
+      .seller-chip { border:1px solid rgba(255,255,255,.1); background:#1f2430; color:#d8dce5; border-radius:999px; padding:9px 12px; cursor:pointer; font-weight:850; }
+      .seller-chip.is-active { background:#fe2c55; color:#fff; border-color:#fe2c55; }
+      .seller-table-wrap { overflow:auto; border:1px solid rgba(255,255,255,.08); border-radius:20px; background:#151923; }
+      .seller-table { width:100%; border-collapse:collapse; min-width:1060px; }
+      .seller-table th { padding:14px; text-align:left; color:#9ca3af; background:#1a1f2b; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+      .seller-table td { padding:14px; border-top:1px solid rgba(255,255,255,.07); vertical-align:top; color:#f7f7f8; }
+      .seller-table td span { display:block; color:#9ca3af; margin-top:4px; }
+      .seller-line-item { display:grid; gap:2px; margin-bottom:8px; }
+      .seller-status-form select { min-height:38px; border-radius:12px; border:1px solid rgba(255,255,255,.1); background:#10131b; color:#fff; padding:0 10px; }
+      .seller-empty { padding:22px; color:#9ca3af; }
+      @media (max-width:980px) { .seller-app { grid-template-columns:1fr; } .seller-sidebar { position:relative; height:auto; } .seller-grid,.seller-panels { grid-template-columns:1fr 1fr; } }
+      @media (max-width:640px) { .seller-main { padding:14px; } .seller-grid,.seller-panels { grid-template-columns:1fr; } .seller-topbar { align-items:flex-start; flex-direction:column; } .seller-bar { grid-template-columns:1fr; } }
+    </style>
+    <div class="seller-app">
+      <aside class="seller-sidebar">
+        <div class="seller-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div>
+        <nav class="seller-menu">
+          <a class="active" href="/admin/orders">Tổng quan</a>
+          <a href="/admin/orders">Đơn hàng</a>
+          <a href="/">Xem shop</a>
+          <a href="/api/orders.csv">Xuất CSV</a>
+          <form method="post" action="/admin/logout"><button type="submit">Đăng xuất</button></form>
+        </nav>
+      </aside>
+      <main class="seller-main">
+        <div class="seller-topbar">
+          <div class="seller-title">
+            <h1>Quản lý vận hành</h1>
+            <p>Dashboard đơn hàng, doanh thu, trạng thái xử lý và dữ liệu khách hàng.</p>
+          </div>
+          <div class="seller-actions"><a href="/" target="_blank">Xem website</a><a class="hot" href="/api/orders.csv">Export CSV</a></div>
+        </div>
+        <section class="seller-grid">
+          <div class="seller-card"><span>Doanh thu</span><strong>${formatVnd(analytics.revenue)}</strong><em>Hôm nay ${formatVnd(analytics.todayRevenue)}</em></div>
+          <div class="seller-card"><span>Đơn hàng</span><strong>${analytics.totalOrders}</strong><em>${analytics.todayOrders} đơn hôm nay</em></div>
+          <div class="seller-card"><span>Cần xử lý</span><strong>${analytics.pendingOrders}</strong><em>Mới + đang xử lý</em></div>
+          <div class="seller-card"><span>Conversion</span><strong>${analytics.conversionRate}%</strong><em>Ước tính realtime</em></div>
+        </section>
+        <section class="seller-panels">
+          <div class="seller-panel"><h2>Top sản phẩm</h2><div class="seller-bars">
+            ${(analytics.topProducts.length ? analytics.topProducts : [{ name: "Chưa có dữ liệu", quantity: 0, revenue: 0 }]).map((product) => `
+              <div class="seller-bar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round((product.quantity / maxProductQty) * 100))}%"></i><b>${product.quantity}</b></div>
+            `).join("")}
+          </div></div>
+          <div class="seller-panel"><h2>Cảnh báo hệ thống</h2><div class="seller-alerts">
+            <div class="seller-alert"><strong>Lưu trữ đơn</strong>${escapeHtml(storage)}</div>
+            <div class="seller-alert"><strong>Bảo mật</strong>Admin/API đã khóa bằng mật khẩu. Khách không thấy link backend sau khi đặt hàng.</div>
+            <div class="seller-alert"><strong>Vận hành</strong>CSV export và cập nhật trạng thái đã sẵn sàng.</div>
+          </div></div>
+        </section>
+        <div class="seller-toolbar">
+          <input class="seller-search" type="search" placeholder="Tìm mã đơn, khách hàng, điện thoại, sản phẩm..." data-seller-search>
+          <div class="seller-filters">
+            <button class="seller-chip is-active" data-status-filter="">Tất cả</button>
+            ${Object.entries(statusLabels).map(([value, label]) => `<button class="seller-chip" data-status-filter="${value}">${label}</button>`).join("")}
+          </div>
+        </div>
+        <div class="seller-table-wrap">
+          <table class="seller-table">
+            <thead><tr><th></th><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr></thead>
+            <tbody>${rows || `<tr><td class="seller-empty" colspan="6">Chưa có đơn hàng.</td></tr>`}</tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+    <script>
+      const search = document.querySelector("[data-seller-search]");
+      const chips = document.querySelectorAll("[data-status-filter]");
+      let activeStatus = "";
+      function applySellerFilters() {
+        const q = (search?.value || "").toLowerCase();
+        document.querySelectorAll(".seller-table tbody tr").forEach((row) => {
+          const statusOk = !activeStatus || row.dataset.status === activeStatus;
+          const queryOk = !q || row.innerText.toLowerCase().includes(q);
+          row.hidden = !(statusOk && queryOk);
+        });
+      }
+      search?.addEventListener("input", applySellerFilters);
+      chips.forEach((chip) => chip.addEventListener("click", () => {
+        activeStatus = chip.dataset.statusFilter || "";
+        chips.forEach((item) => item.classList.toggle("is-active", item === chip));
+        applySellerFilters();
+      }));
+    </script>
+  `);
+}
+
 async function handlePostOrder(request, env) {
   let body;
   try {
@@ -539,11 +734,11 @@ async function handlePostOrder(request, env) {
 async function handleAdminLogin(request, env) {
   const secret = getAdminSecret(env);
   if (!secret) {
-    return html(renderLogin("Chưa cấu hình ADMIN_TOKEN hoặc ADMIN_PASSWORD trong Cloudflare Variables."), 503);
+    return html(renderLoginPro("Chưa cấu hình ADMIN_TOKEN hoặc ADMIN_PASSWORD trong Cloudflare Variables."), 503);
   }
   const form = await request.formData();
   if (String(form.get("password") || "") !== secret) {
-    return html(renderLogin("Mật khẩu không đúng."), 401);
+    return html(renderLoginPro("Mật khẩu không đúng."), 401);
   }
   return redirect("/admin/orders", { "set-cookie": adminCookie(secret) });
 }
@@ -617,11 +812,11 @@ export default {
 
       if (url.pathname === "/admin/orders" && request.method === "GET") {
         if (!getAdminSecret(env)) {
-          return html(renderLogin("Hãy thêm biến ADMIN_TOKEN hoặc ADMIN_PASSWORD trong Cloudflare trước khi dùng trang quản lý."), 503);
+          return html(renderLoginPro("Hãy thêm biến ADMIN_TOKEN hoặc ADMIN_PASSWORD trong Cloudflare trước khi dùng trang quản lý."), 503);
         }
-        if (!isAdminRequest(request, env)) return html(renderLogin(), 401);
+        if (!isAdminRequest(request, env)) return html(renderLoginPro(), 401);
         const orders = await readOrders(env);
-        return html(renderSellerDashboard(orders));
+        return html(renderSellerDashboardPro(orders, env));
       }
 
       if (url.pathname.startsWith("/api/")) {

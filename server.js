@@ -744,6 +744,9 @@ function parseBody(req) {
     });
     req.on("end", () => {
       if (!raw) return resolve({});
+      if ((req.headers["content-type"] || "").includes("application/x-www-form-urlencoded")) {
+        return resolve(Object.fromEntries(new URLSearchParams(raw)));
+      }
       try {
         resolve(JSON.parse(raw));
       } catch (error) {
@@ -1254,6 +1257,137 @@ function renderAdminOrdersPage() {
   `);
 }
 
+function renderAdminSellerCenterPage() {
+  const statusLabels = {
+    new: "Mới",
+    processing: "Đang xử lý",
+    packed: "Đã đóng gói",
+    shipped: "Đang giao",
+    completed: "Hoàn tất",
+    cancelled: "Đã hủy"
+  };
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayOrders = orders.filter((order) => String(order.createdAt || "").startsWith(todayKey));
+  const totalRevenue = orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
+  const pendingOrders = orders.filter((order) => ["new", "processing"].includes(order.status || "new")).length;
+  const productStats = new Map();
+  for (const order of orders) {
+    for (const item of order.items || []) {
+      const key = item.name || item.id || "Sản phẩm";
+      const current = productStats.get(key) || { name: key, quantity: 0 };
+      current.quantity += Number(item.quantity) || 1;
+      productStats.set(key, current);
+    }
+  }
+  const topProducts = [...productStats.values()].sort((a, b) => b.quantity - a.quantity).slice(0, 5);
+  const maxQty = Math.max(1, ...topProducts.map((product) => product.quantity));
+  const rows = orders.slice().reverse().map((order) => {
+    const customer = order.customer || {};
+    const status = order.status || "new";
+    const address = [customer.address, customer.ward, customer.district, customer.city].filter(Boolean).join(", ");
+    const options = Object.entries(statusLabels).map(([value, label]) => `<option value="${value}" ${value === status ? "selected" : ""}>${label}</option>`).join("");
+    return `
+      <tr data-status="${escapeHtml(status)}">
+        <td><input type="checkbox" aria-label="Chọn đơn ${escapeHtml(order.id)}"></td>
+        <td><strong>${escapeHtml(order.id)}</strong><span>${escapeHtml(new Date(order.createdAt).toLocaleString("vi-VN"))}</span></td>
+        <td><strong>${escapeHtml(customer.name || "Khách lẻ")}</strong><span>${escapeHtml(customer.phone || "")}</span><span>${escapeHtml(address || customer.email || "")}</span></td>
+        <td>${(order.items || []).map((item) => `<div class="admin-line-item"><strong>${escapeHtml(item.name)}</strong><span>${Number(item.quantity) || 1} x ${Number(item.price || 0).toLocaleString("vi-VN")}đ</span></div>`).join("")}</td>
+        <td><strong>${Number(order.total || 0).toLocaleString("vi-VN")}đ</strong></td>
+        <td><form method="post" action="/api/orders/status"><input type="hidden" name="id" value="${escapeHtml(order.id)}"><select name="status" onchange="this.form.submit()">${options}</select></form></td>
+      </tr>
+    `;
+  }).join("");
+
+  return layout("TaynguyenSoul Seller Center", "", `
+    <style>
+      body { background:#0f1117; color:#f7f7f8; }
+      .soul-header, .soul-footer, .soul-newsletter { display:none; }
+      .admin-app { display:grid; grid-template-columns:248px minmax(0,1fr); min-height:100vh; font-family:Inter, Arial, sans-serif; }
+      .admin-sidebar { padding:22px 16px; background:#151821; border-right:1px solid rgba(255,255,255,.08); }
+      .admin-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; font-size:18px; font-weight:950; }
+      .admin-brand img { width:42px; height:42px; object-fit:contain; background:#fff; border-radius:12px; padding:4px; }
+      .admin-menu { display:grid; gap:8px; }
+      .admin-menu a { border-radius:14px; padding:12px 13px; color:#bec3cf; text-decoration:none; font-weight:850; }
+      .admin-menu a.active, .admin-menu a:hover { background:#242937; color:#fff; }
+      .admin-main { min-width:0; padding:22px; }
+      .admin-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+      .admin-title h1 { margin:0; color:#fff; font-size:32px; letter-spacing:-.04em; }
+      .admin-title p { margin:7px 0 0; color:#9ca3af; }
+      .admin-actions { display:flex; gap:10px; flex-wrap:wrap; }
+      .admin-actions a { border-radius:999px; padding:10px 14px; background:#1f2430; color:#fff; text-decoration:none; font-weight:900; }
+      .admin-actions .hot { background:linear-gradient(135deg,#fe2c55,#ff6a00); }
+      .admin-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+      .admin-kpi { border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:16px; background:linear-gradient(180deg,#1a1f2b,#151923); box-shadow:0 18px 50px rgba(0,0,0,.24); }
+      .admin-kpi span { display:block; color:#9ca3af; font-size:13px; font-weight:850; text-transform:uppercase; }
+      .admin-kpi strong { display:block; margin-top:8px; font-size:26px; color:#fff; }
+      .admin-kpi em { display:block; margin-top:8px; color:#25f4ee; font-style:normal; font-weight:850; font-size:13px; }
+      .admin-panels { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr); gap:14px; margin-bottom:16px; }
+      .admin-panel { border:1px solid rgba(255,255,255,.08); border-radius:20px; background:#151923; padding:16px; }
+      .admin-panel h2 { margin:0 0 12px; color:#fff; font-size:16px; }
+      .admin-bars { display:grid; gap:10px; }
+      .admin-bar { display:grid; grid-template-columns:180px 1fr auto; gap:10px; align-items:center; color:#d8dce5; }
+      .admin-bar span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .admin-bar i { height:10px; border-radius:999px; background:linear-gradient(90deg,#25f4ee,#fe2c55); display:block; }
+      .admin-alert { border-radius:14px; padding:12px; background:#1f2430; color:#d8dce5; margin-bottom:10px; }
+      .admin-alert strong { display:block; color:#fff; margin-bottom:4px; }
+      .admin-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+      .admin-search { width:min(520px,100%); min-height:44px; border:1px solid rgba(255,255,255,.1); border-radius:14px; background:#10131b; color:#fff; padding:0 14px; }
+      .admin-filters { display:flex; gap:8px; flex-wrap:wrap; }
+      .admin-chip { border:1px solid rgba(255,255,255,.1); background:#1f2430; color:#d8dce5; border-radius:999px; padding:9px 12px; cursor:pointer; font-weight:850; }
+      .admin-chip.is-active { background:#fe2c55; color:#fff; border-color:#fe2c55; }
+      .admin-table-wrap { overflow:auto; border:1px solid rgba(255,255,255,.08); border-radius:20px; background:#151923; }
+      .admin-orders-table { width:100%; border-collapse:collapse; min-width:1060px; }
+      .admin-orders-table th { padding:14px; text-align:left; color:#9ca3af; background:#1a1f2b; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+      .admin-orders-table td { padding:14px; border-top:1px solid rgba(255,255,255,.07); vertical-align:top; color:#f7f7f8; }
+      .admin-orders-table span { display:block; color:#9ca3af; margin-top:4px; font-size:13px; }
+      .admin-line-item { display:grid; gap:2px; margin-bottom:8px; }
+      .admin-orders-table select { min-height:38px; border-radius:12px; border:1px solid rgba(255,255,255,.1); background:#10131b; color:#fff; padding:0 10px; }
+      @media (max-width:980px) { .admin-app { grid-template-columns:1fr; } .admin-kpis,.admin-panels { grid-template-columns:1fr 1fr; } }
+      @media (max-width:640px) { .admin-main { padding:14px; } .admin-kpis,.admin-panels { grid-template-columns:1fr; } .admin-topbar { align-items:flex-start; flex-direction:column; } .admin-bar { grid-template-columns:1fr; } }
+    </style>
+    <div class="admin-app">
+      <aside class="admin-sidebar">
+        <div class="admin-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div>
+        <nav class="admin-menu"><a class="active" href="/admin/orders">Tổng quan</a><a href="/admin/orders">Đơn hàng</a><a href="/">Xem shop</a><a href="/api/orders">API orders</a></nav>
+      </aside>
+      <main class="admin-main">
+        <div class="admin-topbar"><div class="admin-title"><h1>Quản lý vận hành</h1><p>Dashboard local cho đơn hàng, doanh thu và xử lý trạng thái.</p></div><div class="admin-actions"><a href="/" target="_blank">Xem website</a><a class="hot" href="/api/orders">Xem JSON</a></div></div>
+        <section class="admin-kpis">
+          <div class="admin-kpi"><span>Doanh thu</span><strong>${totalRevenue.toLocaleString("vi-VN")}đ</strong><em>Local data/orders.json</em></div>
+          <div class="admin-kpi"><span>Đơn hàng</span><strong>${orders.length}</strong><em>${todayOrders.length} đơn hôm nay</em></div>
+          <div class="admin-kpi"><span>Cần xử lý</span><strong>${pendingOrders}</strong><em>Mới + đang xử lý</em></div>
+          <div class="admin-kpi"><span>Conversion</span><strong>${orders.length ? "3.8" : "0.0"}%</strong><em>Ước tính demo</em></div>
+        </section>
+        <section class="admin-panels">
+          <div class="admin-panel"><h2>Top sản phẩm</h2><div class="admin-bars">${(topProducts.length ? topProducts : [{ name: "Chưa có dữ liệu", quantity: 0 }]).map((product) => `<div class="admin-bar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round((product.quantity / maxQty) * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div></div>
+          <div class="admin-panel"><h2>Cảnh báo vận hành</h2><div class="admin-alert"><strong>Lưu trữ</strong>Local đang dùng data/orders.json. Cloudflare production dùng KV ORDERS_KV.</div><div class="admin-alert"><strong>Quyền truy cập</strong>Production đã có màn đăng nhập admin, khách không thấy backend.</div><div class="admin-alert"><strong>Checkout</strong>Đặt hàng chuyển sang trang cảm ơn riêng.</div></div>
+        </section>
+        <div class="admin-toolbar"><input class="admin-search" type="search" placeholder="Tìm mã đơn, khách hàng, điện thoại, sản phẩm..." data-admin-search><div class="admin-filters"><button class="admin-chip is-active" data-status-filter="">Tất cả</button>${Object.entries(statusLabels).map(([value, label]) => `<button class="admin-chip" data-status-filter="${value}">${label}</button>`).join("")}</div></div>
+        <div class="admin-table-wrap"><table class="admin-orders-table"><thead><tr><th></th><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr></thead><tbody>${rows || `<tr><td colspan="6">Chưa có đơn hàng.</td></tr>`}</tbody></table></div>
+      </main>
+    </div>
+    <script>
+      const search = document.querySelector("[data-admin-search]");
+      const chips = document.querySelectorAll("[data-status-filter]");
+      let activeStatus = "";
+      function applyFilters() {
+        const q = (search?.value || "").toLowerCase();
+        document.querySelectorAll(".admin-orders-table tbody tr").forEach((row) => {
+          const statusOk = !activeStatus || row.dataset.status === activeStatus;
+          const queryOk = !q || row.innerText.toLowerCase().includes(q);
+          row.hidden = !(statusOk && queryOk);
+        });
+      }
+      search?.addEventListener("input", applyFilters);
+      chips.forEach((chip) => chip.addEventListener("click", () => {
+        activeStatus = chip.dataset.statusFilter || "";
+        chips.forEach((item) => item.classList.toggle("is-active", item === chip));
+        applyFilters();
+      }));
+    </script>
+  `);
+}
+
 function sendHtml(res, body) {
   res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
   res.end(body);
@@ -1301,7 +1435,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && url.pathname === "/admin/orders") {
-      sendHtml(res, renderAdminOrdersPage());
+      sendHtml(res, renderAdminSellerCenterPage());
       return;
     }
 
@@ -1331,6 +1465,21 @@ const server = http.createServer(async (req, res) => {
         leads: leads.length,
         uptime: Math.round(process.uptime())
       });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/orders/status") {
+      const body = await parseBody(req);
+      const order = orders.find((entry) => entry.id === body.id);
+      if (!order) {
+        sendJson(res, 404, { message: "Không tìm thấy đơn hàng." });
+        return;
+      }
+      order.status = String(body.status || order.status || "new");
+      order.updatedAt = new Date().toISOString();
+      writeJsonFile(ORDERS_FILE, orders);
+      res.writeHead(303, { Location: "/admin/orders" });
+      res.end();
       return;
     }
 
