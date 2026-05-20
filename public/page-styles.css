@@ -931,6 +931,41 @@ body.soul-page {
   letter-spacing: 0;
   box-shadow: 0 4px 10px rgba(255, 47, 85, 0.22);
   pointer-events: none;
+  transform-origin: 80% 50%;
+  animation: bestSellerPop 520ms cubic-bezier(0.2, 1.4, 0.3, 1) both,
+    bestSellerPulse 2.4s ease-in-out 900ms infinite;
+}
+
+@keyframes bestSellerPop {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.78) rotate(3deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.06) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes bestSellerPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 4px 10px rgba(255, 47, 85, 0.22);
+  }
+  45% {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 7px 15px rgba(255, 47, 85, 0.32);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option-list .best-seller-mini {
+    animation: none;
+  }
 }
 
 .detail-price {
