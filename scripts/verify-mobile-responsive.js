@@ -121,15 +121,21 @@ async function testMobileFlow(browser) {
   await page.screenshot({ path: cartWithItemScreenshot, fullPage: true });
   await page.fill('input[name="phone"]', "0912345678");
   await page.fill('input[name="name"]', "Khach Mobile");
+  const district = page.locator('select[name="district"]');
+  if (await district.count()) await district.selectOption({ index: 1 }).catch(() => {});
+  const ward = page.locator('select[name="ward"]');
+  if (await ward.count()) await ward.selectOption({ index: 1 }).catch(() => {});
   await page.fill('input[name="address"]', "20 Nguyen Trai, Quan 1");
   await page.locator("#checkoutPageSubmit").click();
-  await page.waitForFunction(() => document.querySelector("#checkoutPageStatus")?.innerText.includes("Đã gửi đơn thành công"), null, { timeout: 10000 });
-  const successText = await page.locator("#checkoutPageStatus").innerText();
+  await page.waitForURL("**/dat-hang-thanh-cong/**", { timeout: 10000 });
+  await page.waitForSelector(".order-success-card", { timeout: 10000 });
+  const successText = await page.locator(".order-success-card").innerText();
+  const successUrl = page.url();
   const screenshot = `C:/tmp/tng-mobile-${phase}-flow-success.png`;
   await page.screenshot({ path: screenshot, fullPage: true });
   const flowMetrics = await metrics(page);
   await page.close();
-  return { menuOpened, qtyAfterPlus, qtyAfterMinus, successText, cartWithItemScreenshot, screenshot, metrics: flowMetrics, consoleErrors };
+  return { menuOpened, qtyAfterPlus, qtyAfterMinus, successText, successUrl, cartWithItemScreenshot, screenshot, metrics: flowMetrics, consoleErrors };
 }
 
 (async () => {

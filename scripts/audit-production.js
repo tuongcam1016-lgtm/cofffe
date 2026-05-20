@@ -153,8 +153,10 @@ async function testFlow(browser) {
   if (await ward.count()) await ward.selectOption({ index: 1 }).catch(() => {});
   await page.fill('input[name="address"]', "20 Nguyen Trai, Quan 1");
   await page.locator("#checkoutPageSubmit").click();
-  await page.waitForFunction(() => /thành công|SOUL-/i.test(document.querySelector("#checkoutPageStatus")?.innerText || ""), null, { timeout: 10000 });
-  const successText = await page.locator("#checkoutPageStatus").innerText();
+  await page.waitForURL("**/dat-hang-thanh-cong/**", { timeout: 10000 });
+  await page.waitForSelector(".order-success-card", { timeout: 10000 });
+  const successText = await page.locator(".order-success-card").innerText();
+  const successUrl = page.url();
   const screenshot = path.join(OUT_DIR, "flow-mobile-success.png").replace(/\\/g, "/");
   await page.screenshot({ path: screenshot, fullPage: true });
   const api = await page.request.get(`${LOCAL}/api/orders`);
@@ -168,6 +170,7 @@ async function testFlow(browser) {
     qtyAfterPlus,
     qtyAfterMinus,
     successText,
+    successUrl,
     latestOrder: orders[orders.length - 1],
     screenshot,
     consoleErrors

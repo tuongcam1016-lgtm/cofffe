@@ -1,4 +1,6 @@
 const ORDER_KEY = "orders";
+const fallbackOrderStore = globalThis.__TNG_FALLBACK_ORDERS__ || [];
+globalThis.__TNG_FALLBACK_ORDERS__ = fallbackOrderStore;
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -41,15 +43,13 @@ function formatVnd(value) {
   return `${Math.round(Number(value) || 0).toLocaleString("vi-VN")} đ`;
 }
 
-function orderStore(env) {
-  if (!env.ORDERS_KV) {
-    throw new Error("Backend chưa nhận KV binding ORDERS_KV. Vào Cloudflare > Workers & Pages > cofffe > Bindings, gắn KV namespace với Variable name đúng là ORDERS_KV rồi redeploy.");
-  }
-  return env.ORDERS_KV;
+function hasDurableOrderStore(env) {
+  return Boolean(env.ORDERS_KV);
 }
 
 async function readOrders(env) {
-  const raw = await orderStore(env).get(ORDER_KEY);
+  if (!hasDurableOrderStore(env)) return fallbackOrderStore;
+  const raw = await env.ORDERS_KV.get(ORDER_KEY);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -60,7 +60,17 @@ async function readOrders(env) {
 }
 
 async function writeOrders(env, orders) {
-  await orderStore(env).put(ORDER_KEY, JSON.stringify(orders, null, 2));
+  if (!hasDurableOrderStore(env)) {
+    fallbackOrderStore.splice(0, fallbackOrderStore.length, ...orders);
+    return;
+  }
+  await env.ORDERS_KV.put(ORDER_KEY, JSON.stringify(orders, null, 2));
+}
+
+function orderStorageLabel(env) {
+  return hasDurableOrderStore(env)
+    ? "Cloudflare KV: ORDERS_KV"
+    : "Worker memory fallback - cần gắn ORDERS_KV để lưu bền vững";
 }
 
 function normalizeCustomer(customer = {}) {
@@ -245,7 +255,7 @@ function renderAdminOrders(orders) {
         <div class="page-title">
           <div>
             <h1>Đơn hàng</h1>
-            <p class="muted">Dữ liệu được lưu trong Cloudflare KV. API và trang này đã được bảo vệ bằng mật khẩu admin.</p>
+          <p class="muted">Dữ liệu ưu tiên lưu trong Cloudflare KV. Nếu thiếu binding ORDERS_KV, hệ thống dùng bộ nhớ tạm để không chặn khách đặt hàng; hãy gắn KV để lưu bền vững.</p>
           </div>
         </div>
         <section class="cards">
@@ -522,6 +532,7 @@ async function handlePostOrder(request, env) {
     total: order.total,
     successUrl: `/dat-hang-thanh-cong/?order=${encodeURIComponent(order.id)}&total=${encodeURIComponent(order.total)}`,
     order: { id: order.id, total: order.total, status: order.status },
+    savedTo: orderStorageLabel(env),
   }, 201);
 }
 
@@ -565,7 +576,7 @@ export default {
       if (url.pathname === "/api/orders" && request.method === "GET") {
         if (!isAdminRequest(request, env)) return json({ message: "Unauthorized" }, 401);
         const orders = await readOrders(env);
-        return json({ orders, count: orders.length, savedTo: "Cloudflare KV: ORDERS_KV" });
+        return json({ orders, count: orders.length, savedTo: orderStorageLabel(env) });
       }
 
       if (url.pathname === "/api/orders.csv" && request.method === "GET") {
@@ -592,6 +603,7 @@ export default {
             ORDERS_KV: Boolean(env.ORDERS_KV),
             ASSETS: Boolean(env.ASSETS),
           },
+          storage: orderStorageLabel(env),
         });
       }
 

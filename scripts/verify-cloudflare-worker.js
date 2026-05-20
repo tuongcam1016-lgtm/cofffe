@@ -112,11 +112,31 @@ async function main() {
   const assetResponse = await worker.fetch(new Request("https://local.test/ca-phe/"), env, {});
   assert(assetResponse.status === 200, `Static fallback expected 200, got ${assetResponse.status}`);
 
+  const fallbackEnv = {
+    ADMIN_TOKEN: "test-admin-token",
+    ASSETS: env.ASSETS,
+  };
+  const fallbackPostResponse = await worker.fetch(new Request("https://fallback.test/api/orders", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(orderPayload),
+  }), fallbackEnv, {});
+  assert(fallbackPostResponse.status === 201, `Fallback POST /api/orders expected 201, got ${fallbackPostResponse.status}`);
+  const fallbackPostJson = await fallbackPostResponse.json();
+  assert(/memory fallback/i.test(fallbackPostJson.savedTo || ""), "Fallback POST did not report memory fallback storage");
+
+  const fallbackHealthResponse = await worker.fetch(new Request("https://fallback.test/api/health"), fallbackEnv, {});
+  assert(fallbackHealthResponse.status === 200, `Fallback health expected 200, got ${fallbackHealthResponse.status}`);
+  const fallbackHealthJson = await fallbackHealthResponse.json();
+  assert(fallbackHealthJson.bindings?.ORDERS_KV === false, "Fallback health did not report ORDERS_KV=false");
+
   console.log(JSON.stringify({
     ok: true,
-    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "CSV export", "status update", "static asset fallback"],
+    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "CSV export", "status update", "static asset fallback", "missing KV fallback"],
     orderId: postJson.id,
     storage: postJson.savedTo,
+    fallbackOrderId: fallbackPostJson.id,
+    fallbackStorage: fallbackPostJson.savedTo,
   }, null, 2));
 }
 

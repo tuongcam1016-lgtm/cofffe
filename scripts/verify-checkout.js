@@ -22,14 +22,16 @@ const fs = require("fs");
   await page.fill('input[name="phone"]', "0911111111");
   await page.fill('input[name="address"]', "Dia chi UI");
   await page.locator("#tngBridgeCheckout").click();
-  await page.waitForSelector("#tngBridgeSuccess:not([hidden])", { timeout: 10000 });
-  const successText = await page.locator("#tngBridgeSuccess").innerText();
+  await page.waitForURL("**/dat-hang-thanh-cong/**", { timeout: 10000 });
+  await page.waitForSelector(".order-success-card", { timeout: 10000 });
+  const successText = await page.locator(".order-success-card").innerText();
   await page.screenshot({ path: "C:/tmp/tng-checkout-success.png", fullPage: false });
   await browser.close();
 
   console.log(JSON.stringify({
     successText,
     hasOrderId: /SOUL-[A-F0-9]+/.test(successText),
+    successUrl: page.url(),
     consoleErrors,
     screenshot: "C:/tmp/tng-checkout-success.png"
   }, null, 2));
