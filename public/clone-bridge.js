@@ -333,6 +333,17 @@
     }
   }
 
+  function hydrateBestSellerBadges() {
+    document.querySelectorAll('[data-option-group="weight"] [data-option-value^="1kg"]').forEach((button) => {
+      if (!button.querySelector(".best-seller-mini")) {
+        const badge = document.createElement("span");
+        badge.className = "best-seller-mini";
+        badge.textContent = "Best Seller";
+        button.prepend(badge);
+      }
+    });
+  }
+
   function productForAdd(productId) {
     const product = state.products.get(productId);
     if (!product) return null;
@@ -1009,6 +1020,7 @@
     buildCart();
     addButtons();
     updateHeaderCount();
+    hydrateBestSellerBadges();
     refreshVariantPrice();
     hydrateAddressSelects();
     buildCommerceShell();
