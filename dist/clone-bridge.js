@@ -282,6 +282,111 @@
     district.addEventListener("change", updateWards);
   }
 
+  function hydrateOrderSuccessExperience() {
+    const page = document.querySelector(".order-success-page");
+    const card = document.querySelector(".order-success-card");
+    if (!page || !card) return;
+
+    const upsells = [
+      {
+        id: "success-signature-250",
+        name: "Cà Phê Signature 250g - thêm vào đơn",
+        price: 125000,
+        category: "Cà phê nguyên chất",
+        image: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.png",
+        title: "Signature 250g",
+        note: "Thử thêm vị cân bằng, dễ uống",
+        href: "/san-pham/ca-phe-rang-xay-nguyen-chat-signature/"
+      },
+      {
+        id: "success-coldbrew-combo",
+        name: "Combo Cold Brew dùng thử - thêm vào đơn",
+        price: 274000,
+        category: "Cold Brew",
+        image: "https://taynguyensoul.vn/wp-content/uploads/2023/08/coldbrew-powder-taynguyensoul.vn_.png",
+        title: "Combo Cold Brew",
+        note: "Gợi ý cho khách uống lạnh mỗi ngày",
+        href: "/ca-phe/"
+      },
+      {
+        id: "success-phin",
+        name: "Phin pha cà phê inox - thêm vào đơn",
+        price: 59000,
+        category: "Dụng cụ pha cà phê",
+        image: "https://taynguyensoul.vn/wp-content/uploads/2021/06/phin-ca-phe-taynguyensoul.vn_.jpg",
+        title: "Phin pha cà phê",
+        note: "Mua kèm để dùng ngay khi nhận hàng",
+        href: "/dung-cu-pha-ca-phe/"
+      }
+    ];
+
+    upsells.forEach((item) => state.products.set(item.id, item));
+
+    if (!card.querySelector(".order-success-confetti")) {
+      card.insertAdjacentHTML("afterbegin", `<div class="order-success-confetti" aria-hidden="true">${"<span></span>".repeat(8)}</div>`);
+    }
+
+    if (!page.querySelector(".success-upsell")) {
+      page.insertAdjacentHTML("beforeend", `
+        <section class="success-upsell" aria-labelledby="success-upsell-title">
+          <div class="success-upsell-head">
+            <p>Gợi ý mua kèm</p>
+            <h2 id="success-upsell-title">Thêm vào đơn trước khi shop đóng gói</h2>
+            <span>Phù hợp nếu bạn muốn tặng thêm, thử vị mới hoặc đủ combo tiết kiệm.</span>
+          </div>
+          <div class="success-upsell-grid">
+            ${upsells.map((item, index) => `
+              <article class="success-upsell-card" style="--delay:${index * 90}ms" data-tng-product='${escapeHtml(JSON.stringify(item))}'>
+                <a href="${escapeHtml(item.href)}" aria-label="${escapeHtml(item.title)}"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}"></a>
+                <div><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.note)}</small><strong>${formatVnd(item.price)}</strong></div>
+                <button type="button" data-tng-product-id="${escapeHtml(item.id)}">Thêm vào đơn</button>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      `);
+    }
+
+    const actions = card.querySelector(".order-success-actions");
+    if (actions && !actions.querySelector(".success-sound-button")) {
+      actions.insertAdjacentHTML("beforeend", `<button class="success-sound-button" type="button">Phát âm thanh</button>`);
+    }
+
+    let played = false;
+    const playSuccessSound = () => {
+      if (played) return;
+      played = true;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, index) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, now + index * 0.11);
+          gain.gain.exponentialRampToValueAtTime(0.08, now + index * 0.11 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.11 + 0.16);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now + index * 0.11);
+          osc.stop(now + index * 0.11 + 0.18);
+        });
+        window.setTimeout(() => ctx.close(), 800);
+      } catch {
+        played = false;
+      }
+    };
+
+    window.setTimeout(playSuccessSound, 420);
+    page.addEventListener("pointerdown", playSuccessSound, { once: true });
+    page.querySelector(".success-sound-button")?.addEventListener("click", () => {
+      played = false;
+      playSuccessSound();
+    });
+  }
+
   function addButtons() {
     state.products.forEach((product) => {
       const dataNode = document.querySelector(`[data-gtm4wp_product_id="${CSS.escape(product.id)}"]`);
@@ -1023,6 +1128,7 @@
     hydrateBestSellerBadges();
     refreshVariantPrice();
     hydrateAddressSelects();
+    hydrateOrderSuccessExperience();
     buildCommerceShell();
     renderCheckoutPage();
     normalizeVisibleText();
