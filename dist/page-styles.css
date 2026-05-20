@@ -2366,7 +2366,7 @@ body.soul-page {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);
   gap: 14px;
-  align-items: center;
+  align-items: start;
   padding: 14px;
   border: 1px solid rgba(16, 16, 16, .07);
   border-radius: 20px;
@@ -2378,12 +2378,20 @@ body.soul-page {
   animation-delay: var(--delay, 0ms);
 }
 
-.success-upsell-card img {
+.success-upsell-card > a {
+  display: block;
   width: 92px;
   height: 92px;
   border-radius: 16px;
-  object-fit: contain;
   background: #f7f4f1;
+  overflow: hidden;
+}
+
+.success-upsell-card img {
+  display: block;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
 }
 
 .success-upsell-card div {
@@ -2452,6 +2460,11 @@ body.soul-page {
   }
 
   .success-upsell-card img {
+    width: 82px;
+    height: 82px;
+  }
+
+  .success-upsell-card > a {
     width: 82px;
     height: 82px;
   }

@@ -303,7 +303,7 @@
         name: "Combo Cold Brew dùng thử - thêm vào đơn",
         price: 274000,
         category: "Cold Brew",
-        image: "https://taynguyensoul.vn/wp-content/uploads/2023/08/coldbrew-powder-taynguyensoul.vn_.png",
+        image: "https://taynguyensoul.vn/wp-content/uploads/2023/09/combo-ca-phe-cold-brew-u-lanh-tay-nguyen-soul-1.png",
         title: "Combo Cold Brew",
         note: "Gợi ý cho khách uống lạnh mỗi ngày",
         href: "/ca-phe/"
@@ -313,7 +313,7 @@
         name: "Phin pha cà phê inox - thêm vào đơn",
         price: 59000,
         category: "Dụng cụ pha cà phê",
-        image: "https://taynguyensoul.vn/wp-content/uploads/2021/06/phin-ca-phe-taynguyensoul.vn_.jpg",
+        image: "https://taynguyensoul.vn/wp-content/uploads/2021/06/phin-inox-304-taynguyensoul.vn_.jpg",
         title: "Phin pha cà phê",
         note: "Mua kèm để dùng ngay khi nhận hàng",
         href: "/dung-cu-pha-ca-phe/"
