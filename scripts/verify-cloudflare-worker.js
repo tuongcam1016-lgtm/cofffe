@@ -109,6 +109,33 @@ async function main() {
   }), env, {});
   assert(statusResponse.status === 302, `POST /api/orders/status expected 302, got ${statusResponse.status}`);
 
+  const summaryResponse = await worker.fetch(new Request("https://local.test/api/admin/summary", {
+    headers: { authorization: "Bearer test-admin-token" },
+  }), env, {});
+  assert(summaryResponse.status === 200, `GET /api/admin/summary expected 200, got ${summaryResponse.status}`);
+  const summaryJson = await summaryResponse.json();
+  assert(summaryJson.summary?.totalOrders === 1, "Admin summary did not report the saved order");
+  assert(Array.isArray(summaryJson.summary?.revenue7Days), "Admin summary missing revenue7Days");
+
+  const detailResponse = await worker.fetch(new Request(`https://local.test/api/admin/orders/${postJson.id}`, {
+    headers: { authorization: "Bearer test-admin-token" },
+  }), env, {});
+  assert(detailResponse.status === 200, `GET /api/admin/orders/:id expected 200, got ${detailResponse.status}`);
+  const detailJson = await detailResponse.json();
+  assert(detailJson.order?.id === postJson.id, "Admin order detail returned wrong order");
+
+  const apiStatusResponse = await worker.fetch(new Request(`https://local.test/api/admin/orders/${postJson.id}/status`, {
+    method: "POST",
+    headers: {
+      authorization: "Bearer test-admin-token",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ status: "completed" }),
+  }), env, {});
+  assert(apiStatusResponse.status === 200, `POST /api/admin/orders/:id/status expected 200, got ${apiStatusResponse.status}`);
+  const apiStatusJson = await apiStatusResponse.json();
+  assert(apiStatusJson.order?.status === "completed", "Admin status API did not update order status");
+
   const assetResponse = await worker.fetch(new Request("https://local.test/ca-phe/"), env, {});
   assert(assetResponse.status === 200, `Static fallback expected 200, got ${assetResponse.status}`);
 
@@ -132,7 +159,7 @@ async function main() {
 
   console.log(JSON.stringify({
     ok: true,
-    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "CSV export", "status update", "static asset fallback", "missing KV fallback"],
+    tested: ["POST /api/orders", "public admin denied", "authorized GET /api/orders", "authorized GET /admin/orders", "CSV export", "status update", "admin summary API", "admin detail API", "admin status API", "static asset fallback", "missing KV fallback"],
     orderId: postJson.id,
     storage: postJson.savedTo,
     fallbackOrderId: fallbackPostJson.id,

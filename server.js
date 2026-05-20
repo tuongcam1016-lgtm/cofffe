@@ -732,6 +732,28 @@ function sendJson(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+function parseCookieHeader(header = "") {
+  return Object.fromEntries(String(header).split(";").map((part) => {
+    const [key, ...rest] = part.trim().split("=");
+    return [key, decodeURIComponent(rest.join("=") || "")];
+  }).filter(([key]) => key));
+}
+
+function localAdminSecret() {
+  return String(process.env.ADMIN_TOKEN || process.env.ADMIN_PASSWORD || "Jack@99").trim();
+}
+
+function isLocalAdminRequest(req) {
+  const secret = localAdminSecret();
+  const cookies = parseCookieHeader(req.headers.cookie || "");
+  const auth = String(req.headers.authorization || "");
+  return cookies.admin_session === secret || auth === `Bearer ${secret}`;
+}
+
+function localAdminCookie(maxAge = 60 * 60 * 12) {
+  return `admin_session=${encodeURIComponent(localAdminSecret())}; Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax`;
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let raw = "";
@@ -1388,6 +1410,219 @@ function renderAdminSellerCenterPage() {
   `);
 }
 
+function safeJson(value) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
+function computeServerAdminSummary(orderList) {
+  const today = new Date();
+  const dayKeys = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - index));
+    return date.toISOString().slice(0, 10);
+  });
+  const statusLabels = {
+    new: "Mới",
+    processing: "Đang xử lý",
+    packed: "Đã đóng gói",
+    shipped: "Đang giao",
+    completed: "Hoàn tất",
+    cancelled: "Đã hủy"
+  };
+  const statusCount = Object.fromEntries(Object.keys(statusLabels).map((key) => [key, 0]));
+  const revenueByDay = Object.fromEntries(dayKeys.map((day) => [day, 0]));
+  const ordersByDay = Object.fromEntries(dayKeys.map((day) => [day, 0]));
+  const productStats = new Map();
+  let revenue = 0;
+  for (const order of orderList) {
+    const total = Number(order.total) || 0;
+    const status = order.status || "new";
+    const day = String(order.createdAt || "").slice(0, 10);
+    revenue += total;
+    statusCount[status] = (statusCount[status] || 0) + 1;
+    if (day in revenueByDay) {
+      revenueByDay[day] += total;
+      ordersByDay[day] += 1;
+    }
+    for (const item of order.items || []) {
+      const key = item.name || item.id || "Sản phẩm";
+      const quantity = Number(item.quantity) || 1;
+      const price = Number(item.price) || 0;
+      const current = productStats.get(key) || { name: key, quantity: 0, revenue: 0 };
+      current.quantity += quantity;
+      current.revenue += quantity * price;
+      productStats.set(key, current);
+    }
+  }
+  const todayKey = today.toISOString().slice(0, 10);
+  const todayOrders = orderList.filter((order) => String(order.createdAt || "").startsWith(todayKey));
+  const todayRevenue = todayOrders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
+  const topProducts = [...productStats.values()].sort((a, b) => b.quantity - a.quantity || b.revenue - a.revenue).slice(0, 8);
+  return {
+    totalOrders: orderList.length,
+    revenue,
+    todayOrders: todayOrders.length,
+    todayRevenue,
+    pendingOrders: (statusCount.new || 0) + (statusCount.processing || 0),
+    aov: orderList.length ? Math.round(revenue / orderList.length) : 0,
+    conversionRate: orderList.length ? Math.min(14.6, 2.8 + orderList.length * 0.22).toFixed(1) : "0.0",
+    statusLabels,
+    statusCount,
+    revenue7Days: dayKeys.map((day) => ({ day, revenue: revenueByDay[day], orders: ordersByDay[day] })),
+    topProducts
+  };
+}
+
+function renderAdminCommerceDashboard() {
+  const summary = computeServerAdminSummary(orders);
+  const maxRevenue = Math.max(1, ...summary.revenue7Days.map((item) => item.revenue));
+  const maxStatus = Math.max(1, ...Object.values(summary.statusCount));
+  const maxProduct = Math.max(1, ...summary.topProducts.map((item) => item.quantity));
+  const money = (value) => `${Number(value || 0).toLocaleString("vi-VN")}đ`;
+
+  return layout("TaynguyenSoul Seller Center", "", `
+    <style>
+      :root { color-scheme:dark; --bg:#0b0d12; --panel:#151821; --panel2:#1b2030; --line:rgba(255,255,255,.09); --text:#f7f7f8; --muted:#9ca3af; --hot:#fe2c55; --orange:#ff6a00; --cyan:#25f4ee; }
+      body.admin-light { --bg:#f5f6f8; --panel:#fff; --panel2:#f0f2f5; --line:#e5e7eb; --text:#111827; --muted:#6b7280; color-scheme:light; }
+      body { background:var(--bg); color:var(--text); }
+      .soul-header, .soul-footer, .soul-newsletter { display:none; }
+      .admin-v2 { display:grid; grid-template-columns:264px minmax(0,1fr); min-height:100vh; font-family:Inter, Arial, sans-serif; }
+      .admin-v2-sidebar { position:sticky; top:0; height:100vh; padding:22px 16px; background:var(--panel); border-right:1px solid var(--line); }
+      .admin-v2-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; font-size:18px; font-weight:950; }
+      .admin-v2-brand img { width:42px; height:42px; object-fit:contain; background:#fff; border-radius:12px; padding:4px; }
+      .admin-v2-menu { display:grid; gap:8px; }
+      .admin-v2-menu a { border-radius:14px; padding:12px 13px; color:var(--muted); text-decoration:none; font-weight:850; }
+      .admin-v2-menu a.active, .admin-v2-menu a:hover { background:var(--panel2); color:var(--text); }
+      .admin-v2-main { min-width:0; padding:22px; }
+      .admin-v2-topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:18px; }
+      .admin-v2-title h1 { margin:0; color:var(--text); font-size:32px; letter-spacing:-.04em; }
+      .admin-v2-title p { margin:7px 0 0; color:var(--muted); }
+      .admin-v2-actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+      .admin-v2-actions a, .admin-v2-actions button { border:1px solid var(--line); border-radius:999px; padding:10px 14px; background:var(--panel2); color:var(--text); text-decoration:none; font-weight:900; cursor:pointer; }
+      .admin-v2-actions .hot { background:linear-gradient(135deg,var(--hot),var(--orange)); color:#fff; border:0; }
+      .admin-v2-search, .admin-v2-input, .admin-v2-select { min-height:44px; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--text); padding:0 12px; }
+      .admin-v2-search { width:min(420px,38vw); border-radius:999px; }
+      .admin-v2-kpis { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+      .admin-v2-kpi, .admin-v2-panel { border:1px solid var(--line); border-radius:20px; background:var(--panel); box-shadow:0 18px 50px rgba(0,0,0,.18); }
+      .admin-v2-kpi { padding:16px; }
+      .admin-v2-kpi span { display:block; color:var(--muted); font-size:12px; font-weight:850; text-transform:uppercase; }
+      .admin-v2-kpi strong { display:block; margin-top:8px; font-size:24px; color:var(--text); }
+      .admin-v2-kpi em { display:block; margin-top:8px; color:var(--cyan); font-style:normal; font-weight:850; font-size:12px; }
+      .admin-v2-panels { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:14px; margin-bottom:16px; }
+      .admin-v2-panel { padding:16px; }
+      .admin-v2-panel h2 { margin:0 0 12px; font-size:16px; color:var(--text); }
+      .admin-v2-chart { display:flex; align-items:end; gap:10px; min-height:170px; padding-top:10px; }
+      .admin-v2-chart > div { flex:1; display:grid; align-content:end; gap:8px; min-width:0; }
+      .admin-v2-chart i { display:block; min-height:8px; border-radius:12px 12px 4px 4px; background:linear-gradient(180deg,var(--hot),var(--orange)); }
+      .admin-v2-chart span { color:var(--muted); font-size:11px; text-align:center; }
+      .admin-v2-rowbar { display:grid; grid-template-columns:140px 1fr auto; gap:10px; align-items:center; color:var(--text); margin-bottom:10px; }
+      .admin-v2-rowbar span { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .admin-v2-rowbar i { height:10px; border-radius:999px; background:linear-gradient(90deg,var(--cyan),var(--hot)); display:block; }
+      .admin-v2-ops { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; }
+      .admin-v2-alert { border:1px solid var(--line); border-radius:16px; padding:13px; background:var(--panel); color:var(--muted); }
+      .admin-v2-alert strong { display:block; color:var(--text); margin-bottom:4px; }
+      .admin-v2-toolbar { display:grid; grid-template-columns:1fr auto auto auto; gap:10px; align-items:center; margin-bottom:12px; }
+      .admin-v2-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+      .admin-v2-chip { border:1px solid var(--line); background:var(--panel2); color:var(--text); border-radius:999px; padding:9px 12px; cursor:pointer; font-weight:850; }
+      .admin-v2-chip.is-active { background:var(--hot); color:#fff; border-color:var(--hot); }
+      .admin-v2-table-wrap { overflow:auto; border:1px solid var(--line); border-radius:20px; background:var(--panel); }
+      .admin-v2-table { width:100%; min-width:1120px; border-collapse:collapse; }
+      .admin-v2-table th { padding:14px; text-align:left; color:var(--muted); background:var(--panel2); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+      .admin-v2-table td { padding:14px; border-top:1px solid var(--line); vertical-align:top; color:var(--text); }
+      .admin-v2-table td span { display:block; color:var(--muted); margin-top:4px; }
+      .admin-v2-line { display:grid; gap:2px; margin-bottom:8px; }
+      .admin-v2-badge { display:inline-flex; width:max-content; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:900; background:#263449; color:#dbeafe; }
+      .admin-v2-badge.new { background:#3b1d28; color:#ffb4c4; } .admin-v2-badge.processing { background:#33280e; color:#ffd166; } .admin-v2-badge.completed { background:#123326; color:#8ff0bd; } .admin-v2-badge.cancelled { background:#332020; color:#ff9f9f; }
+      .admin-v2-table button, .admin-v2-table select, .admin-v2-drawer button, .admin-v2-drawer select { min-height:36px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); color:var(--text); padding:0 10px; cursor:pointer; }
+      .admin-v2-backdrop { position:fixed; inset:0; display:none; background:rgba(0,0,0,.52); z-index:50; }
+      .admin-v2-backdrop.open { display:block; }
+      .admin-v2-drawer { position:absolute; top:0; right:0; width:min(520px,100%); height:100%; overflow:auto; background:var(--panel); border-left:1px solid var(--line); padding:22px; box-shadow:-24px 0 80px rgba(0,0,0,.34); }
+      .admin-v2-drawer-head { display:flex; justify-content:space-between; gap:14px; margin-bottom:16px; }
+      .admin-v2-close { width:40px; height:40px; border-radius:999px; }
+      .admin-v2-detail { display:grid; gap:12px; }
+      .admin-v2-detail-card { border:1px solid var(--line); border-radius:16px; padding:14px; background:var(--panel2); }
+      .admin-v2-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:none; border-radius:999px; padding:12px 16px; background:#111; color:#fff; z-index:80; font-weight:850; }
+      .admin-v2-toast.show { display:block; }
+      @media (max-width:1180px) { .admin-v2-kpis { grid-template-columns:repeat(3,1fr); } .admin-v2-toolbar { grid-template-columns:1fr 1fr; } }
+      @media (max-width:900px) { .admin-v2 { grid-template-columns:1fr; } .admin-v2-sidebar { position:relative; height:auto; } .admin-v2-panels,.admin-v2-ops { grid-template-columns:1fr; } .admin-v2-search { width:100%; } }
+      @media (max-width:560px) { .admin-v2-main { padding:14px; } .admin-v2-kpis { grid-template-columns:1fr; } .admin-v2-topbar { align-items:flex-start; flex-direction:column; } .admin-v2-toolbar { grid-template-columns:1fr; } .admin-v2-rowbar { grid-template-columns:1fr; } }
+    </style>
+    <script type="application/json" id="admin-orders-json">${safeJson(orders)}</script>
+    <script type="application/json" id="admin-summary-json">${safeJson(summary)}</script>
+    <div class="admin-v2">
+      <aside class="admin-v2-sidebar"><div class="admin-v2-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div><nav class="admin-v2-menu"><a class="active" href="/admin/orders">Tổng quan</a><a href="#orders">Đơn hàng</a><a href="#analytics">Phân tích</a><a href="/api/orders">API JSON</a><a href="/">Xem shop</a></nav></aside>
+      <main class="admin-v2-main">
+        <div class="admin-v2-topbar"><div class="admin-v2-title"><h1>Quản lý vận hành</h1><p>Dashboard đơn hàng realtime, tối ưu cho thao tác nhanh như Seller Center.</p></div><div class="admin-v2-actions"><input class="admin-v2-search" data-global-search placeholder="Tìm nhanh đơn, khách, SĐT..."><button type="button" data-theme-toggle>Light mode</button><a class="hot" href="/api/orders">Xem JSON</a></div></div>
+        <section class="admin-v2-kpis"><div class="admin-v2-kpi"><span>Doanh thu</span><strong>${money(summary.revenue)}</strong><em>Hôm nay ${money(summary.todayRevenue)}</em></div><div class="admin-v2-kpi"><span>Đơn hàng</span><strong>${summary.totalOrders}</strong><em>${summary.todayOrders} đơn hôm nay</em></div><div class="admin-v2-kpi"><span>Cần xử lý</span><strong>${summary.pendingOrders}</strong><em>Mới + đang xử lý</em></div><div class="admin-v2-kpi"><span>AOV</span><strong>${money(summary.aov)}</strong><em>Giá trị đơn TB</em></div><div class="admin-v2-kpi"><span>Conversion</span><strong>${summary.conversionRate}%</strong><em>Demo estimate</em></div></section>
+        <section id="analytics" class="admin-v2-panels"><div class="admin-v2-panel"><h2>Doanh thu 7 ngày</h2><div class="admin-v2-chart">${summary.revenue7Days.map((day) => `<div title="${money(day.revenue)} / ${day.orders} đơn"><i style="height:${Math.max(8, Math.round(day.revenue / maxRevenue * 150))}px"></i><span>${day.day.slice(5)}</span></div>`).join("")}</div></div><div class="admin-v2-panel"><h2>Trạng thái đơn</h2>${Object.entries(summary.statusLabels).map(([key, label]) => `<div class="admin-v2-rowbar"><span>${label}</span><i style="width:${Math.max(8, Math.round((summary.statusCount[key] || 0) / maxStatus * 100))}%"></i><b>${summary.statusCount[key] || 0}</b></div>`).join("")}</div></section>
+        <section class="admin-v2-panels"><div class="admin-v2-panel"><h2>Top sản phẩm bán chạy</h2>${(summary.topProducts.length ? summary.topProducts : [{ name: "Chưa có dữ liệu", quantity: 0, revenue: 0 }]).map((product) => `<div class="admin-v2-rowbar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round(product.quantity / maxProduct * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div><div class="admin-v2-panel"><h2>Tình trạng hệ thống</h2><div class="admin-v2-ops"><div class="admin-v2-alert"><strong>Lưu trữ</strong>Local data/orders.json</div><div class="admin-v2-alert"><strong>Bảo mật</strong>Production có login admin; khách không thấy backend.</div><div class="admin-v2-alert"><strong>Checkout</strong>Chuyển sang trang cảm ơn riêng.</div></div></div></section>
+        <section id="orders" class="admin-v2-panel"><h2>Quản lý đơn hàng</h2><div class="admin-v2-toolbar"><input class="admin-v2-input" data-table-search placeholder="Tìm mã đơn, khách hàng, SĐT, sản phẩm"><input class="admin-v2-input" type="date" data-date-filter><select class="admin-v2-select" data-sort><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="total-desc">Tổng tiền cao</option><option value="total-asc">Tổng tiền thấp</option></select><button class="admin-v2-chip" type="button" data-clear-filters>Xóa lọc</button></div><div class="admin-v2-tabs"><button class="admin-v2-chip is-active" data-status-filter="">Tất cả</button>${Object.entries(summary.statusLabels).map(([key, label]) => `<button class="admin-v2-chip" data-status-filter="${key}">${label}</button>`).join("")}</div><div class="admin-v2-table-wrap"><table class="admin-v2-table"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody data-orders-body></tbody></table></div></section>
+      </main>
+    </div>
+    <div class="admin-v2-backdrop" data-drawer-backdrop><aside class="admin-v2-drawer" data-drawer></aside></div><div class="admin-v2-toast" data-toast>Đã copy</div>
+    <script>
+      const orders = JSON.parse(document.getElementById("admin-orders-json").textContent || "[]");
+      const summary = JSON.parse(document.getElementById("admin-summary-json").textContent || "{}");
+      const fmt = new Intl.NumberFormat("vi-VN");
+      const body = document.querySelector("[data-orders-body]");
+      const searchInputs = [document.querySelector("[data-table-search]"), document.querySelector("[data-global-search]")];
+      const dateFilter = document.querySelector("[data-date-filter]");
+      const sortSelect = document.querySelector("[data-sort]");
+      const chips = document.querySelectorAll("[data-status-filter]");
+      const drawerBackdrop = document.querySelector("[data-drawer-backdrop]");
+      const drawer = document.querySelector("[data-drawer]");
+      const toast = document.querySelector("[data-toast]");
+      let activeStatus = "";
+      const statusLabels = summary.statusLabels || {};
+      function money(value) { return fmt.format(Number(value) || 0) + "đ"; }
+      function esc(value) { return String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch])); }
+      function badge(status) { return '<span class="admin-v2-badge ' + esc(status) + '">' + esc(statusLabels[status] || status || "Mới") + '</span>'; }
+      function text(order) { const c = order.customer || {}; return [order.id,c.name,c.phone,c.email,c.address,c.ward,c.district,c.city,...(order.items || []).map(i => i.name)].join(" ").toLowerCase(); }
+      function query() { return searchInputs.map(input => input?.value || "").find(Boolean)?.toLowerCase() || ""; }
+      function list() { const q = query(); const day = dateFilter.value; const sort = sortSelect.value; return orders.filter(order => (!activeStatus || (order.status || "new") === activeStatus) && (!day || String(order.createdAt || "").startsWith(day)) && (!q || text(order).includes(q))).sort((a,b) => sort === "oldest" ? new Date(a.createdAt) - new Date(b.createdAt) : sort === "total-desc" ? (Number(b.total)||0) - (Number(a.total)||0) : sort === "total-asc" ? (Number(a.total)||0) - (Number(b.total)||0) : new Date(b.createdAt) - new Date(a.createdAt)); }
+      function renderRows() { const rows = list(); body.innerHTML = rows.length ? rows.map(order => { const c = order.customer || {}; const address = [c.address,c.ward,c.district,c.city].filter(Boolean).join(", "); const items = (order.items || []).map(item => '<div class="admin-v2-line"><strong>' + esc(item.name) + '</strong><span>' + (Number(item.quantity)||1) + ' x ' + money(item.price) + '</span></div>').join(""); return '<tr><td><strong>' + esc(order.id) + '</strong><span>' + esc(new Date(order.createdAt).toLocaleString("vi-VN")) + '</span></td><td><strong>' + esc(c.name || "Khách lẻ") + '</strong><span>' + esc(c.phone || "") + '</span><span>' + esc(address || c.email || "") + '</span></td><td>' + items + '</td><td><strong>' + money(order.total) + '</strong></td><td>' + badge(order.status || "new") + '</td><td><button type="button" data-detail="' + esc(order.id) + '">Chi tiết</button> <button type="button" data-copy="' + esc(order.id) + '">Copy mã</button></td></tr>'; }).join("") : '<tr><td colspan="6"><div class="admin-v2-alert"><strong>Không có đơn phù hợp</strong>Thử đổi bộ lọc hoặc từ khóa.</div></td></tr>'; }
+      function toastMsg(value) { toast.textContent = value; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 1500); }
+      async function copyText(value) { await navigator.clipboard?.writeText(value); toastMsg("Đã copy " + value); }
+      function openDrawer(id) { const order = orders.find(item => item.id === id); if (!order) return; const c = order.customer || {}; const items = (order.items || []).map(item => '<div class="admin-v2-line"><strong>' + esc(item.name) + '</strong><span>' + (Number(item.quantity)||1) + ' x ' + money(item.price) + '</span></div>').join(""); drawer.innerHTML = '<div class="admin-v2-drawer-head"><div><h2>' + esc(order.id) + '</h2>' + badge(order.status || "new") + '</div><button class="admin-v2-close" data-close-drawer>×</button></div><div class="admin-v2-detail"><div class="admin-v2-detail-card"><strong>Khách hàng</strong><p>' + esc(c.name || "") + '<br>' + esc(c.phone || "") + '<br>' + esc(c.email || "") + '</p><button type="button" data-copy-phone="' + esc(c.phone || "") + '">Copy SĐT</button></div><div class="admin-v2-detail-card"><strong>Địa chỉ</strong><p>' + esc([c.address,c.ward,c.district,c.city].filter(Boolean).join(", ")) + '</p><p>' + esc(c.note || "") + '</p></div><div class="admin-v2-detail-card"><strong>Sản phẩm</strong>' + items + '</div><div class="admin-v2-detail-card"><strong>Tổng tiền</strong><p>' + money(order.total) + '</p><form method="post" action="/api/orders/status"><input type="hidden" name="id" value="' + esc(order.id) + '"><select name="status">' + Object.entries(statusLabels).map(([value,label]) => '<option value="' + esc(value) + '" ' + (value === (order.status || "new") ? "selected" : "") + '>' + esc(label) + '</option>').join("") + '</select> <button type="submit">Cập nhật</button></form></div></div>'; drawerBackdrop.classList.add("open"); }
+      searchInputs.forEach(input => input?.addEventListener("input", renderRows)); dateFilter.addEventListener("change", renderRows); sortSelect.addEventListener("change", renderRows);
+      chips.forEach(chip => chip.addEventListener("click", () => { activeStatus = chip.dataset.statusFilter || ""; chips.forEach(item => item.classList.toggle("is-active", item === chip)); renderRows(); }));
+      document.querySelector("[data-clear-filters]").addEventListener("click", () => { activeStatus = ""; searchInputs.forEach(input => { if (input) input.value = ""; }); dateFilter.value = ""; sortSelect.value = "newest"; chips.forEach((item, index) => item.classList.toggle("is-active", index === 0)); renderRows(); });
+      document.addEventListener("click", event => { const detail = event.target.closest("[data-detail]"); const copy = event.target.closest("[data-copy]"); const phone = event.target.closest("[data-copy-phone]"); if (detail) openDrawer(detail.dataset.detail); if (copy) copyText(copy.dataset.copy); if (phone) copyText(phone.dataset.copyPhone); if (event.target.matches("[data-close-drawer]") || event.target === drawerBackdrop) drawerBackdrop.classList.remove("open"); });
+      document.querySelector("[data-theme-toggle]").addEventListener("click", event => { document.body.classList.toggle("admin-light"); event.currentTarget.textContent = document.body.classList.contains("admin-light") ? "Dark mode" : "Light mode"; });
+      renderRows();
+    </script>
+  `);
+}
+
+function renderLocalAdminLogin(message = "") {
+  return layout("Đăng nhập Seller Center", "", `
+    <style>
+      body { background:#0f1117; color:#f7f7f8; }
+      .soul-header, .soul-footer, .soul-newsletter { display:none; }
+      .local-login { width:min(460px, calc(100% - 32px)); margin:88px auto; padding:28px; border:1px solid rgba(255,255,255,.1); border-radius:22px; background:#151821; box-shadow:0 24px 80px rgba(0,0,0,.35); font-family:Inter, Arial, sans-serif; }
+      .local-login-brand { display:flex; align-items:center; gap:10px; font-weight:950; margin-bottom:18px; }
+      .local-login-brand img { width:44px; height:44px; object-fit:contain; background:#fff; border-radius:12px; padding:4px; }
+      .local-login h1 { margin:0 0 8px; color:#fff; font-size:28px; letter-spacing:-.04em; }
+      .local-login p { color:#a7adba; line-height:1.5; }
+      .local-login label { display:block; margin:18px 0 8px; font-weight:900; }
+      .local-login input { width:100%; min-height:48px; border:1px solid rgba(255,255,255,.16); border-radius:14px; background:#10131b; color:#fff; padding:0 14px; }
+      .local-login button { width:100%; min-height:48px; margin-top:16px; border:0; border-radius:999px; background:linear-gradient(135deg,#fe2c55,#ff6a00); color:#fff; font-weight:950; cursor:pointer; }
+      .local-login .notice { color:#ffb3b3; font-weight:800; }
+    </style>
+    <main class="local-login">
+      <div class="local-login-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>TaynguyenSoul Seller Center</span></div>
+      <h1>Đăng nhập quản lý</h1>
+      <p>Khu vực admin chỉ dành cho quản trị viên. Khách hàng không xem được dữ liệu đơn hàng hoặc API backend.</p>
+      <form method="post" action="/admin/login">
+        <label for="password">Mật khẩu admin</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+        <button type="submit">Đăng nhập</button>
+      </form>
+      ${message ? `<p class="notice">${escapeHtml(message)}</p>` : ""}
+    </main>
+  `);
+}
+
 function sendHtml(res, body) {
   res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
   res.end(body);
@@ -1434,8 +1669,29 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && url.pathname === "/admin/login") {
+      const body = await parseBody(req);
+      if (String(body.password || "") !== localAdminSecret()) {
+        sendHtml(res, renderLocalAdminLogin("Mật khẩu không đúng."));
+        return;
+      }
+      res.writeHead(303, { Location: "/admin/orders", "Set-Cookie": localAdminCookie() });
+      res.end();
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/admin/logout") {
+      res.writeHead(303, { Location: "/admin/orders", "Set-Cookie": "admin_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax" });
+      res.end();
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/admin/orders") {
-      sendHtml(res, renderAdminSellerCenterPage());
+      if (!isLocalAdminRequest(req)) {
+        sendHtml(res, renderLocalAdminLogin());
+        return;
+      }
+      sendHtml(res, renderAdminCommerceDashboard());
       return;
     }
 
@@ -1469,6 +1725,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/orders/status") {
+      if (!isLocalAdminRequest(req)) {
+        sendJson(res, 401, { message: "Unauthorized" });
+        return;
+      }
       const body = await parseBody(req);
       const order = orders.find((entry) => entry.id === body.id);
       if (!order) {
@@ -1480,6 +1740,49 @@ const server = http.createServer(async (req, res) => {
       writeJsonFile(ORDERS_FILE, orders);
       res.writeHead(303, { Location: "/admin/orders" });
       res.end();
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/admin/summary") {
+      if (!isLocalAdminRequest(req)) {
+        sendJson(res, 401, { message: "Unauthorized" });
+        return;
+      }
+      sendJson(res, 200, { summary: computeServerAdminSummary(orders), count: orders.length, savedTo: "data/orders.json" });
+      return;
+    }
+
+    const adminOrderMatch = url.pathname.match(/^\/api\/admin\/orders\/([^/]+)(?:\/status)?$/);
+    if (adminOrderMatch && req.method === "GET") {
+      if (!isLocalAdminRequest(req)) {
+        sendJson(res, 401, { message: "Unauthorized" });
+        return;
+      }
+      const order = orders.find((entry) => entry.id === decodeURIComponent(adminOrderMatch[1]));
+      sendJson(res, order ? 200 : 404, order ? { order } : { message: "Không tìm thấy đơn hàng." });
+      return;
+    }
+
+    if (adminOrderMatch && url.pathname.endsWith("/status") && req.method === "POST") {
+      if (!isLocalAdminRequest(req)) {
+        sendJson(res, 401, { message: "Unauthorized" });
+        return;
+      }
+      const body = await parseBody(req);
+      const order = orders.find((entry) => entry.id === decodeURIComponent(adminOrderMatch[1]));
+      const allowed = new Set(["new", "processing", "packed", "shipped", "completed", "cancelled"]);
+      if (!order) {
+        sendJson(res, 404, { message: "Không tìm thấy đơn hàng." });
+        return;
+      }
+      if (!allowed.has(body.status)) {
+        sendJson(res, 400, { message: "Trạng thái không hợp lệ." });
+        return;
+      }
+      order.status = body.status;
+      order.updatedAt = new Date().toISOString();
+      writeJsonFile(ORDERS_FILE, orders);
+      sendJson(res, 200, { ok: true, order, summary: computeServerAdminSummary(orders), savedTo: "data/orders.json" });
       return;
     }
 
@@ -1554,6 +1857,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && url.pathname === "/api/orders") {
+      if (!isLocalAdminRequest(req)) {
+        sendJson(res, 401, { message: "Unauthorized" });
+        return;
+      }
       sendJson(res, 200, { orders, count: orders.length, savedTo: "data/orders.json" });
       return;
     }

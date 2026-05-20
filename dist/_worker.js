@@ -365,6 +365,72 @@ function ordersToCsv(orders) {
   return rows.map((row) => row.map(csvCell).join(",")).join("\n");
 }
 
+function safeJson(value) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
+function computeAdminSummary(orders) {
+  const today = new Date();
+  const dayKeys = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - index));
+    return date.toISOString().slice(0, 10);
+  });
+  const statusLabels = {
+    new: "Mới",
+    processing: "Đang xử lý",
+    packed: "Đã đóng gói",
+    shipped: "Đang giao",
+    completed: "Hoàn tất",
+    cancelled: "Đã hủy",
+  };
+  const statusCount = Object.fromEntries(Object.keys(statusLabels).map((key) => [key, 0]));
+  const revenueByDay = Object.fromEntries(dayKeys.map((key) => [key, 0]));
+  const ordersByDay = Object.fromEntries(dayKeys.map((key) => [key, 0]));
+  const productStats = new Map();
+  let revenue = 0;
+
+  for (const order of orders) {
+    const total = Number(order.total) || 0;
+    const status = order.status || "new";
+    const day = String(order.createdAt || "").slice(0, 10);
+    revenue += total;
+    statusCount[status] = (statusCount[status] || 0) + 1;
+    if (day in revenueByDay) {
+      revenueByDay[day] += total;
+      ordersByDay[day] += 1;
+    }
+    for (const item of order.items || []) {
+      const key = item.name || item.id || "Sản phẩm";
+      const quantity = Number(item.quantity) || 1;
+      const price = Number(item.price) || 0;
+      const current = productStats.get(key) || { name: key, quantity: 0, revenue: 0 };
+      current.quantity += quantity;
+      current.revenue += quantity * price;
+      productStats.set(key, current);
+    }
+  }
+
+  const todayKey = today.toISOString().slice(0, 10);
+  const todayOrders = orders.filter((order) => String(order.createdAt || "").startsWith(todayKey));
+  const todayRevenue = todayOrders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
+  const pendingOrders = (statusCount.new || 0) + (statusCount.processing || 0);
+  const topProducts = [...productStats.values()].sort((a, b) => b.quantity - a.quantity || b.revenue - a.revenue).slice(0, 8);
+  return {
+    totalOrders: orders.length,
+    revenue,
+    todayOrders: todayOrders.length,
+    todayRevenue,
+    pendingOrders,
+    aov: orders.length ? Math.round(revenue / orders.length) : 0,
+    conversionRate: orders.length ? Math.min(14.6, 2.8 + orders.length * 0.22).toFixed(1) : "0.0",
+    statusLabels,
+    statusCount,
+    revenue7Days: dayKeys.map((day) => ({ day, revenue: revenueByDay[day], orders: ordersByDay[day] })),
+    topProducts,
+  };
+}
+
 function renderSellerDashboard(orders) {
   const analytics = computeOrderAnalytics(orders);
   const statusLabels = {
@@ -686,6 +752,189 @@ function renderSellerDashboardPro(orders, env = {}) {
   `);
 }
 
+function renderCommerceAdminDashboard(orders, env = {}) {
+  const summary = computeAdminSummary(orders);
+  const storage = orderStorageLabel(env);
+  const maxRevenue = Math.max(1, ...summary.revenue7Days.map((item) => item.revenue));
+  const maxStatus = Math.max(1, ...Object.values(summary.statusCount));
+  const maxProduct = Math.max(1, ...summary.topProducts.map((item) => item.quantity));
+
+  return layout("TaynguyenSoul Seller Center", `
+    <style>
+      :root { color-scheme:dark; --bg:#0b0d12; --panel:#151821; --panel2:#1b2030; --line:rgba(255,255,255,.09); --text:#f7f7f8; --muted:#9ca3af; --hot:#fe2c55; --orange:#ff6a00; --cyan:#25f4ee; --green:#20c997; }
+      body.admin-light { --bg:#f5f6f8; --panel:#fff; --panel2:#f0f2f5; --line:#e5e7eb; --text:#111827; --muted:#6b7280; color-scheme:light; }
+      body { background:var(--bg); color:var(--text); font-family:Inter, Arial, Helvetica, sans-serif; }
+      .top { background:linear-gradient(90deg,#111,var(--hot),var(--orange)); color:#fff; }
+      .commerce-admin { display:grid; grid-template-columns:264px minmax(0,1fr); min-height:calc(100vh - 36px); }
+      .ca-sidebar { position:sticky; top:0; height:calc(100vh - 36px); padding:22px 16px; background:var(--panel); border-right:1px solid var(--line); }
+      .ca-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; font-size:18px; font-weight:950; }
+      .ca-brand img { width:42px; height:42px; object-fit:contain; background:#fff; border-radius:12px; padding:4px; }
+      .ca-menu { display:grid; gap:8px; }
+      .ca-menu a, .ca-menu button { border:0; border-radius:14px; padding:12px 13px; background:transparent; color:var(--muted); text-align:left; text-decoration:none; font-weight:850; cursor:pointer; }
+      .ca-menu a.active, .ca-menu a:hover, .ca-menu button:hover { background:var(--panel2); color:var(--text); }
+      .ca-main { min-width:0; padding:22px; }
+      .ca-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+      .ca-title h1 { margin:0; color:var(--text); font-size:32px; letter-spacing:-.04em; }
+      .ca-title p { margin:7px 0 0; color:var(--muted); }
+      .ca-actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+      .ca-actions a, .ca-actions button { border:1px solid var(--line); border-radius:999px; padding:10px 14px; background:var(--panel2); color:var(--text); text-decoration:none; font-weight:900; cursor:pointer; }
+      .ca-actions .hot { background:linear-gradient(135deg,var(--hot),var(--orange)); border:0; color:#fff; }
+      .ca-global-search { width:min(420px,38vw); min-height:44px; border:1px solid var(--line); border-radius:999px; background:var(--panel); color:var(--text); padding:0 16px; }
+      .ca-kpis { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+      .ca-kpi, .ca-panel { border:1px solid var(--line); border-radius:20px; background:var(--panel); box-shadow:0 18px 50px rgba(0,0,0,.18); }
+      .ca-kpi { padding:16px; }
+      .ca-kpi span { display:block; color:var(--muted); font-size:12px; font-weight:850; text-transform:uppercase; }
+      .ca-kpi strong { display:block; margin-top:8px; color:var(--text); font-size:24px; letter-spacing:-.03em; }
+      .ca-kpi em { display:block; margin-top:8px; color:var(--cyan); font-style:normal; font-weight:850; font-size:12px; }
+      .ca-panels { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:14px; margin-bottom:16px; }
+      .ca-panel { padding:16px; }
+      .ca-panel h2 { margin:0 0 12px; font-size:16px; color:var(--text); }
+      .ca-chart { display:flex; align-items:end; gap:10px; min-height:170px; padding-top:10px; }
+      .ca-chart-bar { flex:1; display:grid; align-content:end; gap:8px; min-width:0; }
+      .ca-chart-bar i { display:block; min-height:8px; border-radius:12px 12px 4px 4px; background:linear-gradient(180deg,var(--hot),var(--orange)); }
+      .ca-chart-bar span { color:var(--muted); font-size:11px; text-align:center; overflow:hidden; text-overflow:ellipsis; }
+      .ca-status-list, .ca-products { display:grid; gap:10px; }
+      .ca-rowbar { display:grid; grid-template-columns:124px 1fr auto; gap:10px; align-items:center; color:var(--text); }
+      .ca-rowbar span { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .ca-rowbar i { height:10px; border-radius:999px; background:linear-gradient(90deg,var(--cyan),var(--hot)); display:block; }
+      .ca-ops { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; }
+      .ca-alert { border:1px solid var(--line); border-radius:16px; padding:13px; background:var(--panel); color:var(--muted); }
+      .ca-alert strong { display:block; color:var(--text); margin-bottom:4px; }
+      .ca-toolbar { display:grid; grid-template-columns:1fr auto auto auto; gap:10px; align-items:center; margin-bottom:12px; }
+      .ca-input, .ca-select { min-height:44px; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--text); padding:0 12px; }
+      .ca-filter-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+      .ca-chip { border:1px solid var(--line); background:var(--panel2); color:var(--text); border-radius:999px; padding:9px 12px; cursor:pointer; font-weight:850; }
+      .ca-chip.is-active { background:var(--hot); color:#fff; border-color:var(--hot); }
+      .ca-table-wrap { overflow:auto; border:1px solid var(--line); border-radius:20px; background:var(--panel); }
+      .ca-table { width:100%; border-collapse:collapse; min-width:1120px; }
+      .ca-table th { padding:14px; text-align:left; color:var(--muted); background:var(--panel2); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+      .ca-table td { padding:14px; border-top:1px solid var(--line); vertical-align:top; color:var(--text); }
+      .ca-table td span { display:block; color:var(--muted); margin-top:4px; }
+      .ca-line-item { display:grid; gap:2px; margin-bottom:8px; }
+      .ca-badge { display:inline-flex; width:max-content; align-items:center; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:900; background:#263449; color:#dbeafe; }
+      .ca-badge.new { background:#3b1d28; color:#ffb4c4; } .ca-badge.processing { background:#33280e; color:#ffd166; } .ca-badge.completed { background:#123326; color:#8ff0bd; } .ca-badge.cancelled { background:#332020; color:#ff9f9f; }
+      .ca-table button, .ca-table select { min-height:36px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); color:var(--text); padding:0 10px; cursor:pointer; }
+      .ca-drawer-backdrop { position:fixed; inset:0; display:none; background:rgba(0,0,0,.52); z-index:50; }
+      .ca-drawer-backdrop.open { display:block; }
+      .ca-drawer { position:absolute; top:0; right:0; width:min(520px,100%); height:100%; overflow:auto; background:var(--panel); border-left:1px solid var(--line); padding:22px; box-shadow:-24px 0 80px rgba(0,0,0,.34); }
+      .ca-drawer-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:16px; }
+      .ca-drawer h2 { margin:0; font-size:24px; }
+      .ca-close { border:1px solid var(--line); border-radius:999px; background:var(--panel2); color:var(--text); width:40px; height:40px; cursor:pointer; }
+      .ca-detail-grid { display:grid; gap:12px; }
+      .ca-detail-card { border:1px solid var(--line); border-radius:16px; padding:14px; background:var(--panel2); }
+      .ca-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:none; border-radius:999px; padding:12px 16px; background:#111; color:#fff; z-index:80; font-weight:850; }
+      .ca-toast.show { display:block; }
+      @media (max-width:1180px) { .ca-kpis { grid-template-columns:repeat(3,1fr); } .ca-toolbar { grid-template-columns:1fr 1fr; } }
+      @media (max-width:900px) { .commerce-admin { grid-template-columns:1fr; } .ca-sidebar { position:relative; height:auto; } .ca-panels,.ca-ops { grid-template-columns:1fr; } .ca-global-search { width:100%; } }
+      @media (max-width:560px) { .ca-main { padding:14px; } .ca-kpis { grid-template-columns:1fr; } .ca-topbar { align-items:flex-start; flex-direction:column; } .ca-toolbar { grid-template-columns:1fr; } .ca-rowbar { grid-template-columns:1fr; } }
+    </style>
+    <script type="application/json" id="admin-orders-json">${safeJson(orders)}</script>
+    <script type="application/json" id="admin-summary-json">${safeJson(summary)}</script>
+    <div class="commerce-admin">
+      <aside class="ca-sidebar">
+        <div class="ca-brand"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"><span>Seller Center</span></div>
+        <nav class="ca-menu">
+          <a class="active" href="/admin/orders">Tổng quan</a>
+          <a href="#orders">Đơn hàng</a>
+          <a href="#analytics">Phân tích</a>
+          <a href="/api/orders.csv">Xuất CSV</a>
+          <a href="/">Xem shop</a>
+          <form method="post" action="/admin/logout"><button type="submit">Đăng xuất</button></form>
+        </nav>
+      </aside>
+      <main class="ca-main">
+        <div class="ca-topbar">
+          <div class="ca-title"><h1>Quản lý vận hành</h1><p>Dashboard đơn hàng realtime, tối ưu cho thao tác nhanh như Seller Center.</p></div>
+          <div class="ca-actions"><input class="ca-global-search" data-global-search placeholder="Tìm nhanh đơn, khách, SĐT..."><button type="button" data-theme-toggle>Light mode</button><a class="hot" href="/api/orders.csv">Export CSV</a></div>
+        </div>
+        <section class="ca-kpis">
+          <div class="ca-kpi"><span>Doanh thu</span><strong>${formatVnd(summary.revenue)}</strong><em>Hôm nay ${formatVnd(summary.todayRevenue)}</em></div>
+          <div class="ca-kpi"><span>Đơn hàng</span><strong>${summary.totalOrders}</strong><em>${summary.todayOrders} đơn hôm nay</em></div>
+          <div class="ca-kpi"><span>Cần xử lý</span><strong>${summary.pendingOrders}</strong><em>Mới + đang xử lý</em></div>
+          <div class="ca-kpi"><span>AOV</span><strong>${formatVnd(summary.aov)}</strong><em>Giá trị đơn TB</em></div>
+          <div class="ca-kpi"><span>Conversion</span><strong>${summary.conversionRate}%</strong><em>Demo estimate</em></div>
+        </section>
+        <section id="analytics" class="ca-panels">
+          <div class="ca-panel"><h2>Doanh thu 7 ngày</h2><div class="ca-chart">${summary.revenue7Days.map((day) => `<div class="ca-chart-bar" title="${formatVnd(day.revenue)} / ${day.orders} đơn"><i style="height:${Math.max(8, Math.round(day.revenue / maxRevenue * 150))}px"></i><span>${day.day.slice(5)}</span></div>`).join("")}</div></div>
+          <div class="ca-panel"><h2>Trạng thái đơn</h2><div class="ca-status-list">${Object.entries(summary.statusLabels).map(([key, label]) => `<div class="ca-rowbar"><span>${label}</span><i style="width:${Math.max(8, Math.round((summary.statusCount[key] || 0) / maxStatus * 100))}%"></i><b>${summary.statusCount[key] || 0}</b></div>`).join("")}</div></div>
+        </section>
+        <section class="ca-panels">
+          <div class="ca-panel"><h2>Top sản phẩm bán chạy</h2><div class="ca-products">${(summary.topProducts.length ? summary.topProducts : [{ name: "Chưa có dữ liệu", quantity: 0, revenue: 0 }]).map((product) => `<div class="ca-rowbar"><span>${escapeHtml(product.name)}</span><i style="width:${Math.max(8, Math.round(product.quantity / maxProduct * 100))}%"></i><b>${product.quantity}</b></div>`).join("")}</div></div>
+          <div class="ca-panel"><h2>Tình trạng hệ thống</h2><div class="ca-ops"><div class="ca-alert"><strong>Lưu trữ</strong>${escapeHtml(storage)}</div><div class="ca-alert"><strong>Bảo mật</strong>Admin/API đã khóa; khách không thấy backend.</div><div class="ca-alert"><strong>Checkout</strong>Đặt hàng chuyển sang trang cảm ơn riêng.</div></div></div>
+        </section>
+        <section id="orders" class="ca-panel">
+          <h2>Quản lý đơn hàng</h2>
+          <div class="ca-toolbar">
+            <input class="ca-input" data-table-search placeholder="Tìm mã đơn, khách hàng, SĐT, sản phẩm">
+            <input class="ca-input" type="date" data-date-filter>
+            <select class="ca-select" data-sort><option value="newest">Mới nhất</option><option value="oldest">Cũ nhất</option><option value="total-desc">Tổng tiền cao</option><option value="total-asc">Tổng tiền thấp</option></select>
+            <button class="ca-chip" type="button" data-clear-filters>Xóa lọc</button>
+          </div>
+          <div class="ca-filter-tabs"><button class="ca-chip is-active" data-status-filter="">Tất cả</button>${Object.entries(summary.statusLabels).map(([key, label]) => `<button class="ca-chip" data-status-filter="${key}">${label}</button>`).join("")}</div>
+          <div class="ca-table-wrap"><table class="ca-table"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody data-orders-body></tbody></table></div>
+        </section>
+      </main>
+    </div>
+    <div class="ca-drawer-backdrop" data-drawer-backdrop><aside class="ca-drawer" data-drawer></aside></div>
+    <div class="ca-toast" data-toast>Đã copy</div>
+    <script>
+      const orders = JSON.parse(document.getElementById("admin-orders-json").textContent || "[]");
+      const summary = JSON.parse(document.getElementById("admin-summary-json").textContent || "{}");
+      const fmt = new Intl.NumberFormat("vi-VN");
+      const body = document.querySelector("[data-orders-body]");
+      const searchInputs = [document.querySelector("[data-table-search]"), document.querySelector("[data-global-search]")];
+      const dateFilter = document.querySelector("[data-date-filter]");
+      const sortSelect = document.querySelector("[data-sort]");
+      const chips = document.querySelectorAll("[data-status-filter]");
+      const drawerBackdrop = document.querySelector("[data-drawer-backdrop]");
+      const drawer = document.querySelector("[data-drawer]");
+      const toast = document.querySelector("[data-toast]");
+      let activeStatus = "";
+      const statusLabels = summary.statusLabels || {};
+      function money(value) { return fmt.format(Number(value) || 0) + "đ"; }
+      function esc(value) { return String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch])); }
+      function statusBadge(status) { return '<span class="ca-badge ' + esc(status) + '">' + esc(statusLabels[status] || status || "Mới") + '</span>'; }
+      function orderText(order) { const c = order.customer || {}; return [order.id,c.name,c.phone,c.email,c.address,c.ward,c.district,c.city,...(order.items || []).map(i => i.name)].join(" ").toLowerCase(); }
+      function currentQuery() { return searchInputs.map(input => input?.value || "").find(Boolean)?.toLowerCase() || ""; }
+      function filteredOrders() {
+        const q = currentQuery();
+        const day = dateFilter.value;
+        let list = orders.filter(order => (!activeStatus || (order.status || "new") === activeStatus) && (!day || String(order.createdAt || "").startsWith(day)) && (!q || orderText(order).includes(q)));
+        const sort = sortSelect.value;
+        list.sort((a,b) => sort === "oldest" ? new Date(a.createdAt) - new Date(b.createdAt) : sort === "total-desc" ? (Number(b.total)||0) - (Number(a.total)||0) : sort === "total-asc" ? (Number(a.total)||0) - (Number(b.total)||0) : new Date(b.createdAt) - new Date(a.createdAt));
+        return list;
+      }
+      function renderRows() {
+        const list = filteredOrders();
+        body.innerHTML = list.length ? list.map(order => {
+          const c = order.customer || {};
+          const address = [c.address,c.ward,c.district,c.city].filter(Boolean).join(", ");
+          const items = (order.items || []).map(item => '<div class="ca-line-item"><strong>' + esc(item.name) + '</strong><span>' + (Number(item.quantity)||1) + ' x ' + money(item.price) + '</span></div>').join("");
+          return '<tr><td><strong>' + esc(order.id) + '</strong><span>' + esc(new Date(order.createdAt).toLocaleString("vi-VN")) + '</span></td><td><strong>' + esc(c.name || "Khách lẻ") + '</strong><span>' + esc(c.phone || "") + '</span><span>' + esc(address || c.email || "") + '</span></td><td>' + items + '</td><td><strong>' + money(order.total) + '</strong></td><td>' + statusBadge(order.status || "new") + '</td><td><button type="button" data-detail="' + esc(order.id) + '">Chi tiết</button> <button type="button" data-copy="' + esc(order.id) + '">Copy mã</button></td></tr>';
+        }).join("") : '<tr><td colspan="6"><div class="ca-alert"><strong>Không có đơn phù hợp</strong>Thử đổi bộ lọc hoặc từ khóa tìm kiếm.</div></td></tr>';
+      }
+      function showToast(text) { toast.textContent = text; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 1600); }
+      async function copyText(text) { await navigator.clipboard?.writeText(text); showToast("Đã copy " + text); }
+      function openDrawer(id) {
+        const order = orders.find(item => item.id === id);
+        if (!order) return;
+        const c = order.customer || {};
+        const items = (order.items || []).map(item => '<div class="ca-line-item"><strong>' + esc(item.name) + '</strong><span>' + (Number(item.quantity)||1) + ' x ' + money(item.price) + '</span></div>').join("");
+        drawer.innerHTML = '<div class="ca-drawer-head"><div><h2>' + esc(order.id) + '</h2>' + statusBadge(order.status || "new") + '</div><button class="ca-close" data-close-drawer>×</button></div><div class="ca-detail-grid"><div class="ca-detail-card"><strong>Khách hàng</strong><p>' + esc(c.name || "") + '<br>' + esc(c.phone || "") + '<br>' + esc(c.email || "") + '</p><button type="button" data-copy-phone="' + esc(c.phone || "") + '">Copy SĐT</button></div><div class="ca-detail-card"><strong>Địa chỉ</strong><p>' + esc([c.address,c.ward,c.district,c.city].filter(Boolean).join(", ")) + '</p><p>' + esc(c.note || "") + '</p></div><div class="ca-detail-card"><strong>Sản phẩm</strong>' + items + '</div><div class="ca-detail-card"><strong>Tổng tiền</strong><p>' + money(order.total) + '</p><form method="post" action="/api/orders/status"><input type="hidden" name="id" value="' + esc(order.id) + '"><select name="status">' + Object.entries(statusLabels).map(([value,label]) => '<option value="' + esc(value) + '" ' + (value === (order.status || "new") ? "selected" : "") + '>' + esc(label) + '</option>').join("") + '</select> <button type="submit">Cập nhật</button></form></div></div>';
+        drawerBackdrop.classList.add("open");
+      }
+      searchInputs.forEach(input => input?.addEventListener("input", renderRows));
+      dateFilter.addEventListener("change", renderRows);
+      sortSelect.addEventListener("change", renderRows);
+      chips.forEach(chip => chip.addEventListener("click", () => { activeStatus = chip.dataset.statusFilter || ""; chips.forEach(item => item.classList.toggle("is-active", item === chip)); renderRows(); }));
+      document.querySelector("[data-clear-filters]").addEventListener("click", () => { activeStatus = ""; searchInputs.forEach(input => { if (input) input.value = ""; }); dateFilter.value = ""; sortSelect.value = "newest"; chips.forEach((item, index) => item.classList.toggle("is-active", index === 0)); renderRows(); });
+      document.addEventListener("click", event => { const detail = event.target.closest("[data-detail]"); const copy = event.target.closest("[data-copy]"); const phone = event.target.closest("[data-copy-phone]"); if (detail) openDrawer(detail.dataset.detail); if (copy) copyText(copy.dataset.copy); if (phone) copyText(phone.dataset.copyPhone); if (event.target.matches("[data-close-drawer]") || event.target === drawerBackdrop) drawerBackdrop.classList.remove("open"); });
+      document.querySelector("[data-theme-toggle]").addEventListener("click", event => { document.body.classList.toggle("admin-light"); event.currentTarget.textContent = document.body.classList.contains("admin-light") ? "Dark mode" : "Light mode"; });
+      renderRows();
+    </script>
+  `);
+}
+
 async function handlePostOrder(request, env) {
   let body;
   try {
@@ -759,6 +1008,24 @@ async function handleOrderStatusUpdate(request, env) {
   return redirect("/admin/orders");
 }
 
+async function handleAdminOrderStatusApi(request, env, id) {
+  if (!isAdminRequest(request, env)) return json({ message: "Unauthorized" }, 401);
+  const contentType = request.headers.get("content-type") || "";
+  const payload = contentType.includes("application/json")
+    ? await request.json()
+    : Object.fromEntries(await request.formData());
+  const status = String(payload.status || "").trim();
+  const allowed = new Set(["new", "processing", "packed", "shipped", "completed", "cancelled"]);
+  if (!id || !allowed.has(status)) return json({ message: "Trạng thái không hợp lệ." }, 400);
+  const orders = await readOrders(env);
+  const order = orders.find((item) => item.id === id);
+  if (!order) return json({ message: "Không tìm thấy đơn hàng." }, 404);
+  order.status = status;
+  order.updatedAt = new Date().toISOString();
+  await writeOrders(env, orders);
+  return json({ ok: true, order, summary: computeAdminSummary(orders), savedTo: orderStorageLabel(env) });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -790,6 +1057,24 @@ export default {
         return await handleOrderStatusUpdate(request, env);
       }
 
+      if (url.pathname === "/api/admin/summary" && request.method === "GET") {
+        if (!isAdminRequest(request, env)) return json({ message: "Unauthorized" }, 401);
+        const orders = await readOrders(env);
+        return json({ summary: computeAdminSummary(orders), count: orders.length, savedTo: orderStorageLabel(env) });
+      }
+
+      const adminOrderMatch = url.pathname.match(/^\/api\/admin\/orders\/([^/]+)(?:\/status)?$/);
+      if (adminOrderMatch && request.method === "GET") {
+        if (!isAdminRequest(request, env)) return json({ message: "Unauthorized" }, 401);
+        const orders = await readOrders(env);
+        const order = orders.find((item) => item.id === decodeURIComponent(adminOrderMatch[1]));
+        return order ? json({ order }) : json({ message: "Không tìm thấy đơn hàng." }, 404);
+      }
+
+      if (adminOrderMatch && url.pathname.endsWith("/status") && request.method === "POST") {
+        return await handleAdminOrderStatusApi(request, env, decodeURIComponent(adminOrderMatch[1]));
+      }
+
       if (url.pathname === "/api/health" && request.method === "GET") {
         return json({
           ok: true,
@@ -816,7 +1101,7 @@ export default {
         }
         if (!isAdminRequest(request, env)) return html(renderLoginPro(), 401);
         const orders = await readOrders(env);
-        return html(renderSellerDashboardPro(orders, env));
+        return html(renderCommerceAdminDashboard(orders, env));
       }
 
       if (url.pathname.startsWith("/api/")) {

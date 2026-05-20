@@ -159,7 +159,9 @@ async function testFlow(browser) {
   const successUrl = page.url();
   const screenshot = path.join(OUT_DIR, "flow-mobile-success.png").replace(/\\/g, "/");
   await page.screenshot({ path: screenshot, fullPage: true });
-  const api = await page.request.get(`${LOCAL}/api/orders`);
+  const api = await page.request.get(`${LOCAL}/api/orders`, {
+    headers: { authorization: "Bearer Jack@99" }
+  });
   const ordersPayload = await api.json();
   const orders = Array.isArray(ordersPayload) ? ordersPayload : ordersPayload.orders || [];
   await page.close();

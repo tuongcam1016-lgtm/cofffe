@@ -45,7 +45,9 @@ const fs = require("fs");
   await page.waitForFunction(() => document.querySelector("#checkoutPageStatus")?.innerText.includes("Đã gửi đơn thành công"), null, { timeout: 10000 });
   const successText = await page.locator("#checkoutPageStatus").innerText();
 
-  const response = await page.request.get("http://localhost:3001/api/orders");
+  const response = await page.request.get("http://localhost:3001/api/orders", {
+    headers: { authorization: "Bearer Jack@99" }
+  });
   const payloadOrders = await response.json();
   const orders = Array.isArray(payloadOrders) ? payloadOrders : payloadOrders.orders;
   const lastOrder = Array.isArray(orders) ? orders.find((order) => successText.includes(order.id)) : null;
