@@ -347,11 +347,6 @@
       `);
     }
 
-    const actions = card.querySelector(".order-success-actions");
-    if (actions && !actions.querySelector(".success-sound-button")) {
-      actions.insertAdjacentHTML("beforeend", `<button class="success-sound-button" type="button">Phát âm thanh</button>`);
-    }
-
     let played = false;
     const playSuccessSound = () => {
       if (played) return;
@@ -361,19 +356,46 @@
         if (!AudioContext) return;
         const ctx = new AudioContext();
         const now = ctx.currentTime;
-        [523.25, 659.25, 783.99].forEach((freq, index) => {
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.0001, now);
+        master.gain.exponentialRampToValueAtTime(0.12, now + 0.03);
+        master.gain.exponentialRampToValueAtTime(0.0001, now + 0.88);
+        master.connect(ctx.destination);
+
+        [
+          { freq: 523.25, start: 0, length: 0.22, gain: 0.08 },
+          { freq: 659.25, start: 0.09, length: 0.24, gain: 0.08 },
+          { freq: 783.99, start: 0.18, length: 0.32, gain: 0.09 },
+          { freq: 1046.5, start: 0.34, length: 0.34, gain: 0.055 }
+        ].forEach((tone) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          osc.type = "sine";
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.0001, now + index * 0.11);
-          gain.gain.exponentialRampToValueAtTime(0.08, now + index * 0.11 + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.11 + 0.16);
-          osc.connect(gain).connect(ctx.destination);
-          osc.start(now + index * 0.11);
-          osc.stop(now + index * 0.11 + 0.18);
+          const start = now + tone.start;
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(tone.freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(tone.gain, start + 0.018);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + tone.length);
+          osc.connect(gain).connect(master);
+          osc.start(start);
+          osc.stop(start + tone.length + 0.05);
         });
-        window.setTimeout(() => ctx.close(), 800);
+
+        [1567.98, 2093].forEach((freq, index) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const start = now + 0.42 + index * 0.06;
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.035, start + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
+          osc.connect(gain).connect(master);
+          osc.start(start);
+          osc.stop(start + 0.16);
+        });
+
+        window.setTimeout(() => ctx.close(), 1100);
       } catch {
         played = false;
       }
@@ -381,10 +403,6 @@
 
     window.setTimeout(playSuccessSound, 420);
     page.addEventListener("pointerdown", playSuccessSound, { once: true });
-    page.querySelector(".success-sound-button")?.addEventListener("click", () => {
-      played = false;
-      playSuccessSound();
-    });
   }
 
   function addButtons() {

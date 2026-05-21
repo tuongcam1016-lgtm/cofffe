@@ -2306,19 +2306,6 @@ body.soul-page {
   font-weight: 950;
 }
 
-.success-sound-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 20px;
-  border: 1px solid #eadbd2;
-  border-radius: 999px;
-  background: #fff;
-  color: #23120f;
-  font-weight: 950;
-}
-
 .order-success-actions .primary {
   border-color: transparent;
   background: linear-gradient(135deg, #fe2c55, #ff6a00);
@@ -2446,8 +2433,7 @@ body.soul-page {
   }
 
   .order-success-actions,
-  .order-success-actions a,
-  .success-sound-button {
+  .order-success-actions a {
     width: 100%;
   }
 

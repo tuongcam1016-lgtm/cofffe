@@ -6,6 +6,32 @@
   background: rgba(0, 0, 0, 0.45);
 }
 
+.tiktok-commerce-skin h1,
+.tiktok-commerce-skin h2,
+.tiktok-commerce-skin h3,
+.tiktok-commerce-skin .section-title,
+.tiktok-commerce-skin .banner h1,
+.tiktok-commerce-skin .banner h2,
+.tiktok-commerce-skin .banner h3,
+.tiktok-commerce-skin .nav > li > a,
+.tiktok-commerce-skin button,
+.tiktok-commerce-skin .button {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.24;
+  letter-spacing: 0 !important;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tiktok-commerce-skin h1,
+.tiktok-commerce-skin h2,
+.tiktok-commerce-skin .banner h1,
+.tiktok-commerce-skin .banner h2 {
+  overflow: visible;
+  padding-top: .05em;
+  padding-bottom: .05em;
+}
+
 .tiktok-commerce-skin .tng-bridge-panel {
   border-radius: 24px 0 0 24px;
   background: #fff;
