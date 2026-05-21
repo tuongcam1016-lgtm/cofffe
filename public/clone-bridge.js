@@ -405,6 +405,204 @@
     page.addEventListener("pointerdown", playSuccessSound, { once: true });
   }
 
+  function productReviewStorageKey() {
+    const product = document.querySelector(".soul-main[data-tng-product]");
+    try {
+      const data = JSON.parse(product?.dataset.tngProduct || "{}");
+      return `tng-product-reviews-${data.id || window.location.pathname}`;
+    } catch {
+      return `tng-product-reviews-${window.location.pathname}`;
+    }
+  }
+
+  function getReviewProductName() {
+    const title = document.querySelector(".product-info h1")?.textContent?.trim();
+    return fixMojibake(title || "Cà Phê Nguyên Chất Signature");
+  }
+
+  function defaultReviewMedia() {
+    return [
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.png", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.png", label: "Ảnh khách pha cà phê" },
+      { type: "video", src: "https://taynguyensoul.vn/wp-content/uploads/2023/11/ca-phe-nguyen-chat-taynguyensoul-1.mp4", thumb: "https://taynguyensoul.vn/wp-content/uploads/2022/07/hqdefault.jpg", label: "Video review cà phê" },
+      { type: "youtube", src: "https://www.youtube.com/embed/7Zp9Q1fdCBQ", thumb: "https://img.youtube.com/vi/7Zp9Q1fdCBQ/hqdefault.jpg", label: "Video pha thử" },
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.jpg", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.jpg", label: "Ảnh gói cà phê" },
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-taynguyensoul.vn_.png", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-taynguyensoul.vn_.png", label: "Ảnh hạt rang" },
+      { type: "video", src: "https://down-cvs-sg.vod.susercontent.com/api/v4/11110103/mms/vn-11110103-6khwa-m5qge62qal6g6f.default.mp4", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-1-taynguyensoul.vn_.png", label: "Video khách mở hộp" },
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-5-taynguyensoul.vn_.png", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-5-taynguyensoul.vn_.png", label: "Ảnh túi cà phê" },
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-6-taynguyensoul.vn_.png", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-6-taynguyensoul.vn_.png", label: "Ảnh sản phẩm" },
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-7-taynguyensoul.vn_.png", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-7-taynguyensoul.vn_.png", label: "Ảnh review" },
+      { type: "image", src: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-8-taynguyensoul.vn_.png", thumb: "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-8-taynguyensoul.vn_.png", label: "Ảnh đóng gói" }
+    ];
+  }
+
+  function defaultProductReviews() {
+    return [
+      { name: "N****3", likes: 13, date: "10/02/2025", text: "", media: ["https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.png"] },
+      { name: "Longle 1988", likes: 11, date: "10/02/2025", text: "", media: [] },
+      { name: "Hoàng Giang", likes: 0, date: "29/07/2025", text: "Đỉnh, pha ra cái lớp crema nó dày và ngậy. Hôm trước hết caffe mà đi mua thử chỗ khác về dùng. Nhấp dc đúng 1 ngụm rồi đổ đi luôn.", media: ["https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-signature-taynguyensoul.vn_.jpg", "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-taynguyensoul.vn_.png", "https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-1-taynguyensoul.vn_.png"] },
+      { name: "Bình Sbhsh†", likes: 6, date: "05/03/2025", text: "Shop tư vấn nhanh, rang mới, mở túi ra thơm rõ. Pha phin lên vị đậm nhưng không khét.", media: ["https://taynguyensoul.vn/wp-content/uploads/2021/06/ca-phe-nguyen-chat-5-taynguyensoul.vn_.png"] },
+      { name: "M***h T**", likes: 8, date: "18/01/2025", text: "Hạt đều, đóng gói chắc, vị hậu ngọt. Sẽ ủng hộ tiếp.", media: [] }
+    ];
+  }
+
+  function loadLocalProductReviews() {
+    try {
+      return JSON.parse(localStorage.getItem(productReviewStorageKey()) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function saveLocalProductReview(review) {
+    const key = productReviewStorageKey();
+    const current = loadLocalProductReviews();
+    current.unshift(review);
+    localStorage.setItem(key, JSON.stringify(current.slice(0, 30)));
+  }
+
+  function reviewStars(count = 5) {
+    return "★★★★★".slice(0, Math.max(1, Math.min(5, Number(count) || 5)));
+  }
+
+  function renderReviewItems() {
+    const list = document.querySelector("[data-review-list]");
+    if (!list) return;
+    const reviews = [...loadLocalProductReviews(), ...defaultProductReviews()];
+    list.innerHTML = reviews.map((review) => `
+      <article class="tng-review-item">
+        <div class="tng-review-meta">
+          <strong>${escapeHtml(review.name || "Khách hàng")}</strong>
+          <span class="tng-verified">● Người mua đã được kiểm duyệt</span>
+        </div>
+        <div class="tng-review-stars">${reviewStars(review.rating || 5)}</div>
+        ${review.text ? `<p>${escapeHtml(review.text)}</p>` : ""}
+        ${Array.isArray(review.media) && review.media.length ? `<div class="tng-review-photos">${review.media.map((src) => `<button type="button" data-review-media="${escapeHtml(src)}" data-review-type="image"><img src="${escapeHtml(src)}" alt="Ảnh đánh giá"></button>`).join("")}</div>` : ""}
+        <div class="tng-review-foot"><button type="button">${Number(review.likes || 0) || ""} thích</button><time>${escapeHtml(review.date || new Date().toLocaleDateString("vi-VN"))}</time></div>
+      </article>
+    `).join("");
+  }
+
+  function hydrateProductReviews() {
+    const section = document.querySelector(".product-detail")?.parentElement?.querySelector(".review-section");
+    if (!section || section.dataset.tngHydrated === "true") return;
+    section.dataset.tngHydrated = "true";
+    const productName = getReviewProductName();
+    const media = defaultReviewMedia();
+    const histogram = [
+      { star: 5, pct: 92, count: 277 },
+      { star: 4, pct: 5, count: 16 },
+      { star: 3, pct: 1, count: 5 },
+      { star: 2, pct: 0, count: 1 },
+      { star: 1, pct: 0, count: 0 }
+    ];
+
+    section.innerHTML = `
+      <button class="tng-review-toggle" type="button" aria-expanded="true">⌃</button>
+      <h2>Đánh giá (299)</h2>
+      <h3>299 đánh giá cho ${escapeHtml(productName)}</h3>
+      <p class="tng-review-note">(Tất cả đánh giá trên TaynguyenSoul.vn đều là những phản hồi chân thật từ khách hàng, 100% đánh giá đều được thực hiện bởi những người đã trải nghiệm sản phẩm/dịch vụ.)</p>
+      <div class="review-summary tng-review-summary">
+        <div class="tng-rating-score"><strong>4.90</strong><span>★★★★★</span><a href="#review-list">299 đánh giá của khách hàng</a></div>
+        <div class="tng-rating-bars">
+          ${histogram.map((row) => `
+            <div class="tng-rating-row">
+              <span>${row.star} ★</span>
+              <i><b style="width:${row.pct}%"></b></i>
+              <em>${row.pct}%</em>
+              <a href="#review-list">${row.count} đánh giá</a>
+            </div>
+          `).join("")}
+        </div>
+        <button class="tng-review-open" type="button" data-review-open>ĐÁNH GIÁ NGAY</button>
+      </div>
+      <div class="review-media-row tng-review-media-row">
+        ${media.map((item) => `
+          <button type="button" class="${item.type !== "image" ? "is-video" : ""}" data-review-media="${escapeHtml(item.src)}" data-review-type="${escapeHtml(item.type)}" aria-label="${escapeHtml(item.label)}">
+            <img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.label)}">
+            ${item.type !== "image" ? "<span>▶</span>" : ""}
+          </button>
+        `).join("")}
+      </div>
+      <div class="review-list tng-review-list" id="review-list" data-review-list></div>
+      <form class="comment-form tng-review-form" data-review-form hidden>
+        <h3>Viết đánh giá của bạn</h3>
+        <label>Họ tên <input name="name" required placeholder="Ví dụ: Nguyễn Anh"></label>
+        <label>Đánh giá
+          <input type="hidden" name="rating" value="5">
+          <span class="tng-review-stars-input">${[1, 2, 3, 4, 5].map((star) => `<button type="button" data-review-star="${star}" class="selected">★</button>`).join("")}</span>
+        </label>
+        <label>Nội dung <textarea name="text" required placeholder="Chia sẻ cảm nhận thật của bạn..."></textarea></label>
+        <label>Ảnh đính kèm <input name="photo" type="file" accept="image/*"></label>
+        <div class="tng-review-form-actions"><button type="submit">Gửi đánh giá</button><button type="button" data-review-cancel>Đóng</button></div>
+        <p class="tng-review-form-status" data-review-status></p>
+      </form>
+      <div class="tng-review-lightbox" data-review-lightbox aria-hidden="true">
+        <div class="tng-review-lightbox-backdrop" data-review-close></div>
+        <div class="tng-review-lightbox-panel" role="dialog" aria-modal="true" aria-label="Xem media đánh giá">
+          <button type="button" data-review-close>Đóng</button>
+          <div data-review-lightbox-body></div>
+        </div>
+      </div>
+    `;
+    renderReviewItems();
+  }
+
+  function closeReviewLightbox() {
+    const modal = document.querySelector("[data-review-lightbox]");
+    const body = document.querySelector("[data-review-lightbox-body]");
+    if (body) body.innerHTML = "";
+    if (modal) {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  function openReviewLightbox(src, type) {
+    const modal = document.querySelector("[data-review-lightbox]");
+    const body = document.querySelector("[data-review-lightbox-body]");
+    if (!modal || !body || !src) return;
+    if (type === "image") {
+      body.innerHTML = `<img src="${escapeHtml(src)}" alt="Media đánh giá">`;
+    } else if (/\.(mp4|webm|mov)(?:\?|$)/i.test(src) || type === "video") {
+      body.innerHTML = `<video src="${escapeHtml(src)}" controls autoplay playsinline></video>`;
+    } else {
+      body.innerHTML = `<iframe src="${escapeHtml(withVideoParams(src, false))}" title="Video đánh giá" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    }
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function readReviewPhoto(file) {
+    return new Promise((resolve) => {
+      if (!file) return resolve("");
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function submitProductReview(form) {
+    const status = form.querySelector("[data-review-status]");
+    const data = new FormData(form);
+    if (!form.reportValidity()) return;
+    if (status) status.textContent = "Đang thêm đánh giá...";
+    const photo = await readReviewPhoto(data.get("photo"));
+    saveLocalProductReview({
+      name: String(data.get("name") || "Khách hàng").trim(),
+      rating: Number(data.get("rating") || 5),
+      text: String(data.get("text") || "").trim(),
+      media: photo ? [photo] : [],
+      likes: 0,
+      date: new Date().toLocaleDateString("vi-VN")
+    });
+    form.reset();
+    form.querySelector('input[name="rating"]').value = "5";
+    form.querySelectorAll("[data-review-star]").forEach((button) => button.classList.add("selected"));
+    renderReviewItems();
+    if (status) status.textContent = "Đã thêm đánh giá của bạn.";
+  }
+
   function addButtons() {
     state.products.forEach((product) => {
       const dataNode = document.querySelector(`[data-gtm4wp_product_id="${CSS.escape(product.id)}"]`);
@@ -1102,6 +1300,51 @@
         return;
       }
 
+      const reviewOpen = event.target.closest("[data-review-open]");
+      if (reviewOpen) {
+        event.preventDefault();
+        const form = document.querySelector("[data-review-form]");
+        if (form) {
+          form.hidden = false;
+          form.scrollIntoView({ behavior: "smooth", block: "center" });
+          form.querySelector("input, textarea, button")?.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      const reviewCancel = event.target.closest("[data-review-cancel]");
+      if (reviewCancel) {
+        event.preventDefault();
+        const form = reviewCancel.closest("[data-review-form]");
+        if (form) form.hidden = true;
+        return;
+      }
+
+      const reviewStar = event.target.closest("[data-review-star]");
+      if (reviewStar) {
+        event.preventDefault();
+        const form = reviewStar.closest("[data-review-form]");
+        const value = Number(reviewStar.dataset.reviewStar || 5);
+        form?.querySelector('input[name="rating"]')?.setAttribute("value", String(value));
+        form?.querySelectorAll("[data-review-star]").forEach((button) => {
+          button.classList.toggle("selected", Number(button.dataset.reviewStar) <= value);
+        });
+        return;
+      }
+
+      const reviewMedia = event.target.closest("[data-review-media]");
+      if (reviewMedia) {
+        event.preventDefault();
+        openReviewLightbox(reviewMedia.dataset.reviewMedia, reviewMedia.dataset.reviewType || "image");
+        return;
+      }
+
+      if (event.target.closest("[data-review-close]")) {
+        event.preventDefault();
+        closeReviewLightbox();
+        return;
+      }
+
       if (event.target.closest("[data-tng-open-cart]")) {
         event.preventDefault();
         event.stopPropagation();
@@ -1133,6 +1376,15 @@
       if (event.key === "Escape") {
         closeCart();
         closeVideo();
+        closeReviewLightbox();
+      }
+    });
+
+    document.addEventListener("submit", (event) => {
+      const reviewForm = event.target.closest("[data-review-form]");
+      if (reviewForm) {
+        event.preventDefault();
+        submitProductReview(reviewForm);
       }
     });
   }
@@ -1147,6 +1399,7 @@
     refreshVariantPrice();
     hydrateAddressSelects();
     hydrateOrderSuccessExperience();
+    hydrateProductReviews();
     buildCommerceShell();
     renderCheckoutPage();
     normalizeVisibleText();
