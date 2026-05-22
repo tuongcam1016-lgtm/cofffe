@@ -763,29 +763,29 @@ function renderCommerceAdminDashboard(orders, env = {}) {
     <style>
       :root { color-scheme:dark; --bg:#0b0d12; --panel:#151821; --panel2:#1b2030; --line:rgba(255,255,255,.09); --text:#f7f7f8; --muted:#9ca3af; --hot:#fe2c55; --orange:#ff6a00; --cyan:#25f4ee; --green:#20c997; }
       body.admin-light { --bg:#f5f6f8; --panel:#fff; --panel2:#f0f2f5; --line:#e5e7eb; --text:#111827; --muted:#6b7280; color-scheme:light; }
-      body { background:var(--bg); color:var(--text); font-family:Inter, Arial, Helvetica, sans-serif; }
+      body { background:var(--bg); color:var(--text); font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-synthesis:none; text-rendering:optimizeLegibility; }
       .top { background:linear-gradient(90deg,#111,var(--hot),var(--orange)); color:#fff; }
       .commerce-admin { display:grid; grid-template-columns:264px minmax(0,1fr); min-height:calc(100vh - 36px); }
       .ca-sidebar { position:sticky; top:0; height:calc(100vh - 36px); padding:22px 16px; background:var(--panel); border-right:1px solid var(--line); }
-      .ca-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; font-size:18px; font-weight:950; }
+      .ca-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; font-size:18px; font-weight:800; }
       .ca-brand img { width:42px; height:42px; object-fit:contain; background:#fff; border-radius:12px; padding:4px; }
       .ca-menu { display:grid; gap:8px; }
-      .ca-menu a, .ca-menu button { border:0; border-radius:14px; padding:12px 13px; background:transparent; color:var(--muted); text-align:left; text-decoration:none; font-weight:850; cursor:pointer; }
+      .ca-menu a, .ca-menu button { border:0; border-radius:14px; padding:12px 13px; background:transparent; color:var(--muted); text-align:left; text-decoration:none; font-weight:750; cursor:pointer; }
       .ca-menu a.active, .ca-menu a:hover, .ca-menu button:hover { background:var(--panel2); color:var(--text); }
       .ca-main { min-width:0; padding:22px; }
       .ca-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
       .ca-title h1 { margin:0; color:var(--text); font-size:32px; letter-spacing:-.04em; }
       .ca-title p { margin:7px 0 0; color:var(--muted); }
       .ca-actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-      .ca-actions a, .ca-actions button { border:1px solid var(--line); border-radius:999px; padding:10px 14px; background:var(--panel2); color:var(--text); text-decoration:none; font-weight:900; cursor:pointer; }
+      .ca-actions a, .ca-actions button { border:1px solid var(--line); border-radius:999px; padding:10px 14px; background:var(--panel2); color:var(--text); text-decoration:none; font-weight:800; cursor:pointer; }
       .ca-actions .hot { background:linear-gradient(135deg,var(--hot),var(--orange)); border:0; color:#fff; }
       .ca-global-search { width:min(420px,38vw); min-height:44px; border:1px solid var(--line); border-radius:999px; background:var(--panel); color:var(--text); padding:0 16px; }
       .ca-kpis { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
       .ca-kpi, .ca-panel { border:1px solid var(--line); border-radius:20px; background:var(--panel); box-shadow:0 18px 50px rgba(0,0,0,.18); }
       .ca-kpi { padding:16px; }
-      .ca-kpi span { display:block; color:var(--muted); font-size:12px; font-weight:850; text-transform:uppercase; }
+      .ca-kpi span { display:block; color:var(--muted); font-size:12px; font-weight:700; text-transform:uppercase; }
       .ca-kpi strong { display:block; margin-top:8px; color:var(--text); font-size:24px; letter-spacing:-.03em; }
-      .ca-kpi em { display:block; margin-top:8px; color:var(--cyan); font-style:normal; font-weight:850; font-size:12px; }
+      .ca-kpi em { display:block; margin-top:8px; color:var(--cyan); font-style:normal; font-weight:700; font-size:12px; }
       .ca-panels { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:14px; margin-bottom:16px; }
       .ca-panel { padding:16px; }
       .ca-panel h2 { margin:0 0 12px; font-size:16px; color:var(--text); }
@@ -803,7 +803,7 @@ function renderCommerceAdminDashboard(orders, env = {}) {
       .ca-toolbar { display:grid; grid-template-columns:1fr auto auto auto; gap:10px; align-items:center; margin-bottom:12px; }
       .ca-input, .ca-select { min-height:44px; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--text); padding:0 12px; }
       .ca-filter-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
-      .ca-chip { border:1px solid var(--line); background:var(--panel2); color:var(--text); border-radius:999px; padding:9px 12px; cursor:pointer; font-weight:850; }
+      .ca-chip { border:1px solid var(--line); background:var(--panel2); color:var(--text); border-radius:999px; padding:9px 12px; cursor:pointer; font-family:inherit; font-weight:800; line-height:1.15; letter-spacing:0; }
       .ca-chip.is-active { background:var(--hot); color:#fff; border-color:var(--hot); }
       .ca-table-wrap { overflow:auto; border:1px solid var(--line); border-radius:20px; background:var(--panel); }
       .ca-table { width:100%; border-collapse:collapse; min-width:1120px; }
@@ -811,7 +811,7 @@ function renderCommerceAdminDashboard(orders, env = {}) {
       .ca-table td { padding:14px; border-top:1px solid var(--line); vertical-align:top; color:var(--text); }
       .ca-table td span { display:block; color:var(--muted); margin-top:4px; }
       .ca-line-item { display:grid; gap:2px; margin-bottom:8px; }
-      .ca-badge { display:inline-flex; width:max-content; align-items:center; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:900; background:#263449; color:#dbeafe; }
+      .ca-badge { display:inline-flex; width:max-content; align-items:center; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:800; background:#263449; color:#dbeafe; }
       .ca-badge.new { background:#3b1d28; color:#ffb4c4; } .ca-badge.processing { background:#33280e; color:#ffd166; } .ca-badge.completed { background:#123326; color:#8ff0bd; } .ca-badge.cancelled { background:#332020; color:#ff9f9f; }
       .ca-table button, .ca-table select { min-height:36px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); color:var(--text); padding:0 10px; cursor:pointer; }
       .ca-drawer-backdrop { position:fixed; inset:0; display:none; background:rgba(0,0,0,.52); z-index:50; }
@@ -822,7 +822,7 @@ function renderCommerceAdminDashboard(orders, env = {}) {
       .ca-close { border:1px solid var(--line); border-radius:999px; background:var(--panel2); color:var(--text); width:40px; height:40px; cursor:pointer; }
       .ca-detail-grid { display:grid; gap:12px; }
       .ca-detail-card { border:1px solid var(--line); border-radius:16px; padding:14px; background:var(--panel2); }
-      .ca-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:none; border-radius:999px; padding:12px 16px; background:#111; color:#fff; z-index:80; font-weight:850; }
+      .ca-toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:none; border-radius:999px; padding:12px 16px; background:#111; color:#fff; z-index:80; font-weight:800; }
       .ca-toast.show { display:block; }
       @media (max-width:1180px) { .ca-kpis { grid-template-columns:repeat(3,1fr); } .ca-toolbar { grid-template-columns:1fr 1fr; } }
       @media (max-width:900px) { .commerce-admin { grid-template-columns:1fr; } .ca-sidebar { position:relative; height:auto; } .ca-panels,.ca-ops { grid-template-columns:1fr; } .ca-global-search { width:100%; } }
