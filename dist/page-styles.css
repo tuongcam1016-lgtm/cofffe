@@ -270,14 +270,21 @@
   gap: 18px;
 }
 
-.tiktok-commerce-skin .product-gallery,
 .tiktok-commerce-skin .product-info {
   padding: 14px;
 }
 
+.tiktok-commerce-skin .product-gallery {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 .tiktok-commerce-skin .product-hero-image,
+.tiktok-commerce-skin .product-video-inline,
 .tiktok-commerce-skin .product-video-frame {
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 .tiktok-commerce-skin .option-group button,
@@ -702,21 +709,31 @@ body.soul-page {
 .product-gallery {
   position: relative;
   display: grid;
-  grid-template-columns: 50px 1fr;
+  grid-template-columns: 48px minmax(0, 1fr);
   gap: 10px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .product-thumbs {
   display: grid;
   gap: 10px;
   align-content: start;
+  max-height: min(72vh, 720px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 2px;
+  scrollbar-width: none;
+}
+
+.product-thumbs::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .gallery-thumb,
 .product-thumbs > img {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   overflow: hidden;
   border: 1px solid #ccd6d8;
   border-radius: 8px;
@@ -729,8 +746,8 @@ body.soul-page {
 }
 
 .product-thumbs img {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   object-fit: cover;
   border: 0;
   border-radius: 0;
@@ -738,8 +755,8 @@ body.soul-page {
 
 .product-video-thumb {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   overflow: hidden;
   border: 1px solid #b8291e;
   border-radius: 8px;
@@ -771,12 +788,13 @@ body.soul-page {
 
 .product-hero-image {
   width: 100%;
-  aspect-ratio: 1 / 1.15;
+  aspect-ratio: 10 / 14.35;
   object-fit: cover;
   border-radius: 8px;
-  background: #eee;
+  background: #ececec;
   grid-column: 2;
   grid-row: 1;
+  box-shadow: 0 10px 26px rgba(16, 16, 16, 0.08);
 }
 
 .product-video-inline {
@@ -784,12 +802,13 @@ body.soul-page {
   grid-column: 2;
   grid-row: 1;
   width: 100%;
-  aspect-ratio: 1 / 1.15;
+  aspect-ratio: 10 / 14.35;
   display: none;
   overflow: hidden;
   border-radius: 8px;
   background: #000;
   z-index: 3;
+  box-shadow: 0 10px 26px rgba(16, 16, 16, 0.08);
 }
 
 .product-video-inline.is-playing {
@@ -797,11 +816,15 @@ body.soul-page {
 }
 
 .product-video-inline iframe {
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 255%;
   height: 100%;
   border: 0;
   pointer-events: none;
   display: block;
+  transform: translateX(-50%);
 }
 
 .product-video-inline video {
@@ -812,7 +835,8 @@ body.soul-page {
 
 .product-gallery.has-inline-video .product-hero-image,
 .product-gallery.has-inline-video .video-play-button {
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .video-play-button.is-hidden {
@@ -821,8 +845,8 @@ body.soul-page {
 
 .video-play-button {
   position: absolute;
-  left: calc(50px + 10px + (100% - 60px) / 2);
-  top: 50%;
+  left: calc(48px + 10px + (100% - 58px) / 2);
+  bottom: 22px;
   transform: translate(-50%, -50%);
   width: 78px;
   height: 78px;
@@ -856,7 +880,7 @@ body.soul-page {
 }
 
 .gallery-arrow.prev {
-  left: 68px;
+  left: 58px;
 }
 
 .gallery-arrow.next {
@@ -3095,6 +3119,7 @@ body.has-video-modal {
   .product-gallery {
     grid-template-columns: 46px minmax(0, 1fr);
     gap: 8px;
+    align-items: stretch;
   }
 
   .product-thumbs {
@@ -3104,7 +3129,7 @@ body.has-video-modal {
     gap: 8px;
     overflow-x: hidden;
     overflow-y: auto;
-    max-height: min(106vw, 486px);
+    max-height: min(124vw, 620px);
     padding: 0 2px 0 0;
   }
 
@@ -3120,13 +3145,18 @@ body.has-video-modal {
   .product-video-inline {
     grid-column: 2;
     grid-row: 1;
-    aspect-ratio: 1 / 1.18;
+    aspect-ratio: 10 / 14.15;
     object-fit: cover;
+  }
+
+  .product-video-inline iframe {
+    width: 250%;
   }
 
   .video-play-button {
     left: calc(46px + 8px + (100% - 54px) / 2);
-    top: min(54vw, 220px);
+    top: auto;
+    bottom: 12px;
     width: 62px;
     height: 62px;
   }
