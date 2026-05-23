@@ -30,6 +30,182 @@
   }
 }
 
+/* Mobile app pass: keep legacy WooCommerce sliders/cards usable on phones. */
+@media (max-width: 768px) {
+  html,
+  body.tiktok-commerce-skin {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body.tiktok-commerce-skin {
+    background: #f6f6f7;
+    padding-bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .tiktok-commerce-skin .header-wrapper.stuck {
+    height: auto !important;
+    min-height: 92px;
+    background: #fff;
+    box-shadow: 0 8px 22px rgba(16, 16, 16, 0.12);
+  }
+
+  .tiktok-commerce-skin .home-banner-section {
+    margin-top: 0;
+  }
+
+  .tiktok-commerce-skin .home-collections-section {
+    padding: 18px 0 8px;
+    background: #fff;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .section-content,
+  .tiktok-commerce-skin .home-collections-section .row-slider,
+  .tiktok-commerce-skin .home-collections-section .flickity-viewport,
+  .tiktok-commerce-skin .home-collections-section .flickity-slider {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .row-slider {
+    overflow: visible !important;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .flickity-viewport {
+    height: auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 0 12px 14px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .flickity-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .flickity-slider {
+    position: relative !important;
+    left: auto !important;
+    display: flex !important;
+    gap: 12px;
+    align-items: stretch;
+    transform: none !important;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .product-small.col {
+    position: relative !important;
+    left: auto !important;
+    flex: 0 0 min(74vw, 292px) !important;
+    width: min(74vw, 292px) !important;
+    max-width: min(74vw, 292px) !important;
+    min-width: min(74vw, 292px) !important;
+    padding: 0 !important;
+    scroll-snap-align: start;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .product-small.box,
+  .tiktok-commerce-skin .home-collections-section .box {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(16, 16, 16, 0.1);
+  }
+
+  .tiktok-commerce-skin .home-collections-section .box-image,
+  .tiktok-commerce-skin .home-collections-section .image-fade_in_back {
+    height: auto !important;
+    overflow: hidden;
+    border-radius: 18px 18px 0 0;
+    background: #f4f4f5;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .box-image img,
+  .tiktok-commerce-skin .home-collections-section .image-fade_in_back img {
+    width: 100% !important;
+    aspect-ratio: 1 / 1;
+    height: auto !important;
+    object-fit: cover;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .box-text,
+  .tiktok-commerce-skin .home-collections-section .box-text-products {
+    min-height: 158px;
+    padding: 10px 11px 12px !important;
+    color: #111;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .category,
+  .tiktok-commerce-skin .home-collections-section .woocommerce-product-rating {
+    display: none !important;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .product-title,
+  .tiktok-commerce-skin .home-collections-section .woocommerce-loop-product__title,
+  .tiktok-commerce-skin .home-collections-section .name {
+    min-height: 42px !important;
+    margin: 0 0 8px !important;
+    color: #161616;
+    font-size: 15px !important;
+    font-weight: 850 !important;
+    line-height: 1.35 !important;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .price,
+  .tiktok-commerce-skin .home-collections-section .price-wrapper {
+    display: block;
+    min-height: 36px;
+    color: var(--shop-red);
+    font-size: 17px !important;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+
+  .tiktok-commerce-skin .home-collections-section del {
+    color: #8f8f96;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .tng-bridge-add,
+  .tiktok-commerce-skin .home-collections-section .add-cart {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 10px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .tiktok-commerce-skin .home-collections-section .badge,
+  .tiktok-commerce-skin .home-collections-section .badge-container,
+  .tiktok-commerce-skin .home-collections-section .product-label {
+    z-index: 3;
+  }
+
+  .tiktok-commerce-skin .slider-nav-reveal .flickity-prev-next-button,
+  .tiktok-commerce-skin .flickity-prev-next-button {
+    display: none !important;
+  }
+
+  .tiktok-commerce-skin #button-contact-vr {
+    right: 10px !important;
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+    width: 58px !important;
+    height: 58px !important;
+    transform: scale(0.78);
+    transform-origin: right bottom;
+  }
+}
+
 /* TikTok Shop inspired commerce skin */
 :root {
   --shop-red: #fe2c55;
