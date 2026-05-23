@@ -48,6 +48,18 @@ function productSlugFromPath(pathname = "") {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
+function categoryFallbackPath(pathname = "") {
+  const routes = new Set([
+    "/smooth/",
+    "/high-caffeine/",
+    "/ca-phe-cold-brew/",
+    "/giftset-combo/",
+    "/may-pha-ca-phe-cam-tay/",
+    "/dung-cu-pha-ca-phe/",
+  ]);
+  return routes.has(pathname) ? "/ca-phe/index.html" : "";
+}
+
 async function loadProductCatalog(request, env) {
   if (!env.ASSETS) return {};
   const url = new URL("/product-details.json", request.url);
@@ -1166,6 +1178,12 @@ export default {
 
       const assetResponse = await env.ASSETS.fetch(request);
       if (assetResponse.status !== 404) return assetResponse;
+
+      const categoryAsset = categoryFallbackPath(url.pathname);
+      if (categoryAsset) {
+        const categoryUrl = new URL(categoryAsset, request.url);
+        return env.ASSETS.fetch(new Request(categoryUrl.toString(), { method: "GET" }));
+      }
 
       const productSlug = productSlugFromPath(url.pathname);
       if (productSlug) {
