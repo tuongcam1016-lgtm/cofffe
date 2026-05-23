@@ -30,6 +30,152 @@
   }
 }
 
+/* End-of-file override for Vietnamese diacritics. Must remain after all cloned rules. */
+body.soul-page :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, b, small, label, button, input, textarea, select),
+body.tiktok-commerce-skin :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, b, small, label, button, input, textarea, select) {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0 !important;
+}
+
+body.soul-page :is(h1, h2, h3, h4, h5, h6),
+body.tiktok-commerce-skin :is(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.26 !important;
+  font-weight: 800 !important;
+  overflow: visible !important;
+  padding-top: .08em;
+  padding-bottom: .08em;
+}
+
+body.soul-page :is(button, .btn, .cta, .add-cart, .buy-now, .place-order),
+body.tiktok-commerce-skin :is(button, .btn, .cta, .add-cart, .buy-now, .place-order, .tng-bridge-add) {
+  line-height: 1.34 !important;
+  font-weight: 800 !important;
+  overflow: visible !important;
+}
+
+/* Final Vietnamese typography override: keep this at the end so older cloned
+   rules cannot shrink or swap fonts for accented uppercase text. */
+:where(body, .tiktok-commerce-skin, .soul-page) :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, b, small, label, button, input, textarea, select, .btn, .cta, .add-cart, .buy-now, .place-order, .tng-bridge-add, .soul-promo-bar, .site-nav, .nav-link) {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0 !important;
+}
+
+:where(body, .tiktok-commerce-skin, .soul-page) :is(h1, h2, h3, h4, h5, h6, .section-title, .section-title-main, .home-hero-copy h1, .page-hero h1, .category-hero h1) {
+  line-height: 1.26 !important;
+  font-weight: 800 !important;
+  overflow: visible !important;
+  padding-top: .08em;
+  padding-bottom: .08em;
+}
+
+:where(body, .tiktok-commerce-skin, .soul-page) :is(button, .btn, .cta, .add-cart, .buy-now, .place-order, .tng-bridge-add, .tng-bridge-checkout, .soul-promo-bar, .site-nav a, .nav-link) {
+  line-height: 1.34 !important;
+  font-weight: 800 !important;
+  overflow: visible !important;
+}
+
+body.soul-page button,
+body.soul-page input,
+body.soul-page textarea,
+body.soul-page select,
+body.soul-page .coupon-entry button,
+body.soul-page .place-order {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  line-height: 1.34 !important;
+  letter-spacing: 0 !important;
+  text-rendering: optimizeLegibility;
+}
+
+/* Vietnamese typography guardrail for cloned/static pages. */
+.tiktok-commerce-skin,
+.soul-page,
+.tiktok-commerce-skin input,
+.tiktok-commerce-skin button,
+.tiktok-commerce-skin textarea,
+.tiktok-commerce-skin select,
+.soul-page input,
+.soul-page button,
+.soul-page textarea,
+.soul-page select {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0 !important;
+}
+
+.tiktok-commerce-skin h1,
+.tiktok-commerce-skin h2,
+.tiktok-commerce-skin h3,
+.tiktok-commerce-skin h4,
+.tiktok-commerce-skin .banner h1,
+.tiktok-commerce-skin .banner h2,
+.tiktok-commerce-skin .banner h3,
+.tiktok-commerce-skin .section-title,
+.tiktok-commerce-skin .section-title-main,
+.tiktok-commerce-skin .home-hero-copy h1,
+.tiktok-commerce-skin .page-hero h1,
+.tiktok-commerce-skin .category-hero h1,
+.soul-page h1,
+.soul-page h2,
+.soul-page h3,
+.soul-page h4 {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  line-height: 1.26 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  overflow: visible !important;
+  padding-top: 0.08em;
+  padding-bottom: 0.08em;
+  text-rendering: optimizeLegibility;
+}
+
+.tiktok-commerce-skin .soul-promo-bar,
+.tiktok-commerce-skin #top-bar,
+.tiktok-commerce-skin .header-top,
+.tiktok-commerce-skin .nav > li > a,
+.tiktok-commerce-skin .menu-item > a,
+.tiktok-commerce-skin .button,
+.tiktok-commerce-skin button,
+.tiktok-commerce-skin .add-cart,
+.tiktok-commerce-skin .buy-now,
+.tiktok-commerce-skin .tng-bridge-add,
+.tiktok-commerce-skin .tng-bridge-checkout,
+.soul-page .soul-promo-bar,
+.soul-page .soul-nav a,
+.soul-page .add-cart,
+.soul-page .buy-now,
+.soul-page button {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  line-height: 1.34 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-rendering: optimizeLegibility;
+}
+
+.tiktok-commerce-skin .button,
+.tiktok-commerce-skin button,
+.tiktok-commerce-skin .add-cart,
+.tiktok-commerce-skin .buy-now,
+.tiktok-commerce-skin .tng-bridge-add,
+.tiktok-commerce-skin .tng-bridge-checkout,
+.soul-page .add-cart,
+.soul-page .buy-now,
+.soul-page button {
+  min-height: 44px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  white-space: normal;
+}
+
 /* Mobile app pass: keep legacy WooCommerce sliders/cards usable on phones. */
 @media (max-width: 768px) {
   html,
@@ -3635,4 +3781,31 @@ body.has-video-modal {
   .home-hero-card {
     border-radius: 22px;
   }
+}
+
+/* End-of-file override for Vietnamese diacritics. Must remain after all cloned rules. */
+body.soul-page :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, b, small, label, button, input, textarea, select),
+body.tiktok-commerce-skin :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, b, small, label, button, input, textarea, select) {
+  font-family: "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0 !important;
+}
+
+body.soul-page :is(h1, h2, h3, h4, h5, h6),
+body.tiktok-commerce-skin :is(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.26 !important;
+  font-weight: 800 !important;
+  overflow: visible !important;
+  padding-top: .08em;
+  padding-bottom: .08em;
+}
+
+body.soul-page :is(button, .btn, .cta, .add-cart, .buy-now, .place-order),
+body.tiktok-commerce-skin :is(button, .btn, .cta, .add-cart, .buy-now, .place-order, .tng-bridge-add) {
+  line-height: 1.34 !important;
+  font-weight: 800 !important;
+  overflow: visible !important;
 }
