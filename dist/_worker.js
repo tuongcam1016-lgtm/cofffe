@@ -39,6 +39,55 @@ function escapeHtml(value = "") {
     .replace(/'/g, "&#039;");
 }
 
+function formatCurrency(value) {
+  return `${Math.round(Number(value) || 0).toLocaleString("vi-VN")}đ`;
+}
+
+function productSlugFromPath(pathname = "") {
+  const match = String(pathname).match(/^\/san-pham\/([^/]+)\/?$/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+async function loadProductCatalog(request, env) {
+  if (!env.ASSETS) return {};
+  const url = new URL("/product-details.json", request.url);
+  const response = await env.ASSETS.fetch(new Request(url.toString(), { method: "GET" }));
+  if (!response.ok) return {};
+  try {
+    const data = await response.json();
+    return data && data.products ? data.products : {};
+  } catch {
+    return {};
+  }
+}
+
+function productPriceForSlug(slug = "") {
+  if (slug.includes("cold-brew")) return 274000;
+  if (slug.includes("combo")) return 727000;
+  if (slug.includes("may") || slug.includes("soriso")) return 4430000;
+  if (slug.includes("mashup")) return 132000;
+  if (slug.includes("high-caffeine")) return 140000;
+  return 125000;
+}
+
+function renderDynamicProductPage(product, slug) {
+  const title = product?.title || slug.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+  const media = Array.isArray(product?.media) ? product.media : [];
+  const images = media.filter((item) => item.type === "image" && item.src).slice(0, 16);
+  const videos = media.filter((item) => item.type !== "image" && item.src).slice(0, 8);
+  const mainImage = images[0]?.src || media.find((item) => item.thumb)?.thumb || "https://taynguyensoul.vn/wp-content/uploads/2024/06/Mashup-3_7-1.png";
+  const price = productPriceForSlug(slug);
+  const productData = { id: slug, name: title, price, category: "Cà phê nguyên chất", image: mainImage };
+  const thumbs = [...images, ...videos].slice(0, 22).map((item, index) => {
+    const type = item.type || "image";
+    const src = item.src || item.thumb || mainImage;
+    const thumb = item.thumb || (type === "image" ? src : mainImage);
+    return `<button class="gallery-thumb ${index === 0 ? "selected" : ""} ${type !== "image" ? "product-video-thumb" : ""}" type="button" data-gallery-media data-gallery-index="${index}" data-media-type="${escapeHtml(type)}" data-media-src="${escapeHtml(src)}" ${type !== "image" ? `data-video-open data-video-src="${escapeHtml(src)}"` : ""} aria-label="${escapeHtml(item.label || title)}"><img src="${escapeHtml(thumb)}" alt=""><span>${type !== "image" ? "▶" : ""}</span></button>`;
+  }).join("");
+  const video = videos[0];
+  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(title)} - TaynguyenSoul Clone</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/page-styles.css"><link rel="stylesheet" href="/clone-bridge.css"></head><body class="soul-page"><div class="soul-promo-bar">CỐI XAY CÀ PHÊ NÂNG CẤP TRẢI NGHIỆM <a href="/may-pha-ca-phe-cam-tay/">Mua ngay →</a></div><header class="soul-header"><button class="mobile-menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false"><span></span><span></span><span></span></button><nav class="soul-nav"><a class="active" href="/ca-phe/">Cà phê</a><a href="/may-pha-ca-phe-cam-tay/">Máy pha cà phê cầm tay</a><a href="/dung-cu-pha-ca-phe/">Dụng cụ pha cà phê</a></nav><a class="soul-logo" href="/"><img src="https://taynguyensoul.vn/wp-content/uploads/2021/06/taynguyensoul-black-color-150.png" alt="TaynguyenSoul"></a><nav class="soul-nav right"><a href="/ve-taynguyensoul/">Về TaynguyenSoul</a><a href="/blog-ca-phe/">Blog</a><a href="/lien-he/">Liên hệ</a><a href="/tai-khoan/" aria-label="Tài khoản">♡</a><a class="soul-cart-link" href="/gio-hang/">0</a><a href="/ca-phe/" aria-label="Tìm kiếm">⌕</a></nav></header><main class="soul-main" data-tng-product="${escapeHtml(JSON.stringify(productData))}"><div class="soul-breadcrumb"><a href="/">Trang chủ</a> / <a href="/ca-phe/">Cà phê nguyên chất</a> / ${escapeHtml(title)}</div><section class="product-detail"><div><div class="product-gallery"><div class="product-thumbs">${thumbs}</div><img class="product-hero-image" src="${escapeHtml(mainImage)}" alt="${escapeHtml(title)}" data-gallery-image><div class="product-video-inline" aria-hidden="true" data-video-inline><iframe title="${escapeHtml(title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen data-video-inline-frame></iframe><video muted playsinline loop data-video-native></video></div>${video ? `<button class="video-play-button" type="button" data-video-open data-video-src="${escapeHtml(video.src)}" aria-label="Xem video sản phẩm"><span>▶</span></button>` : ""}<button class="gallery-arrow prev" type="button">‹</button><button class="gallery-arrow next" type="button">›</button></div><p class="quote">"Cà phê thơm, vị sạch và dễ uống. Shop đóng gói cẩn thận, giao nhanh."</p></div><div class="product-info"><h1>${escapeHtml(title)}</h1><div class="rating-line"><span class="soul-stars">★★★★★</span><span>Đã bán (web): 51.6k+</span></div><div class="price-range" data-base-price="${price}">${formatCurrency(price)}</div><div class="option-row"><strong>Trọng lượng</strong><div class="option-list" data-option-group="weight"><button type="button" data-option-value="250g" data-price-multiplier="1">250g</button><button type="button" data-option-value="500g" data-price-multiplier="2">500g <span class="deal">-29%</span></button><button type="button" class="selected" data-option-value="1kg(2 gói 500g)" data-price-multiplier="3.68"><span class="best-seller-mini">Best Seller</span>1kg(2 gói 500g) <span class="deal">-31%</span></button></div></div><div class="option-row"><strong>Yêu cầu</strong><div class="option-list" data-option-group="request"><button type="button" class="selected" data-option-value="Xay sẵn">Xay sẵn</button><button type="button" data-option-value="Nguyên hạt">Nguyên hạt</button></div></div><div class="option-row"><strong>Phương pháp pha cà phê</strong><div class="option-list" data-option-group="brew"><button type="button" class="selected" data-option-value="Pha phin">Pha phin</button><button type="button" data-option-value="Pha máy espresso">Pha máy espresso</button><button type="button" data-option-value="French Press/Cold Brew">French Press/Cold Brew</button><button type="button" data-option-value="Pour Over">Pour Over</button></div></div><div class="selected-price">Giá: <del data-compare-price>${formatCurrency(price * 1.32)}</del> <strong data-current-price>${formatCurrency(price)}</strong></div><p class="age-line">Với <span data-selected-weight>1kg(2 gói 500g)</span> bạn sẽ có <span class="age-badge" data-session-count>55 buổi</span> làm việc "Chất Lượng Cao"</p><div class="buy-row"><div class="qty-control"><button type="button" data-qty-minus>-</button><span data-qty>1</span><button type="button" data-qty-plus>+</button></div><button class="add-cart" type="button">Thêm vào giỏ hàng</button></div><button class="buy-now" type="button">MUA NGAY<span>Giao hàng tận nơi, đổi trả miễn phí</span></button><div class="offer-box"><h3>🎉 Ưu đãi dành riêng cho bạn!</h3><p><b>FREESHIP</b> cho đơn từ 1KG cà phê hoặc 599k</p><p><b>SoulSub</b> giảm thêm 5% cho thành viên đã mua từ 700k</p></div></div></section><section class="product-extra"><h2>1 CAM KẾT TÂY NGUYÊN SOUL</h2><p>Sản phẩm được rang mới, đóng gói cẩn thận và phù hợp nhiều kiểu pha tại nhà.</p></section><section class="review-section"></section></main><script src="/clone-bridge.js"></script></body></html>`;
+}
+
 function formatVnd(value) {
   return `${Math.round(Number(value) || 0).toLocaleString("vi-VN")} đ`;
 }
@@ -1115,7 +1164,17 @@ export default {
         return json({ message: "API không tồn tại." }, 404);
       }
 
-      return env.ASSETS.fetch(request);
+      const assetResponse = await env.ASSETS.fetch(request);
+      if (assetResponse.status !== 404) return assetResponse;
+
+      const productSlug = productSlugFromPath(url.pathname);
+      if (productSlug) {
+        const catalog = await loadProductCatalog(request, env);
+        const product = catalog[productSlug];
+        if (product) return html(renderDynamicProductPage(product, productSlug));
+      }
+
+      return assetResponse;
     } catch (error) {
       return json({ message: error.message || "Cloudflare service error." }, 500);
     }
