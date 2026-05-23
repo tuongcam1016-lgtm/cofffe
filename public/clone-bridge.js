@@ -1389,6 +1389,76 @@
     });
   }
 
+  function isSignatureProductPage() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes("ca-phe-rang-xay-nguyen-chat-signature")) return true;
+    const title = document.querySelector(".product-info h1")?.textContent || "";
+    return /signature/i.test(title);
+  }
+
+  function isAllowedSignatureMedia(button) {
+    const type = (button.dataset.mediaType || "").toLowerCase();
+    const src = (button.dataset.mediaSrc || button.dataset.videoSrc || "").toLowerCase();
+    if (!src) return false;
+    if (type === "video" || type === "youtube") return true;
+
+    const blocked = [
+      "high-caffeine",
+      "premium-label",
+      "taynguyensoul-black-color",
+      "mua-ngay-trang",
+      "phone-call",
+      "shipped",
+      "exchange",
+      "clock.png",
+      "/home.png",
+      "easy-to-use",
+      "thia-dong",
+      "phin-inox",
+      "borosilicate"
+    ];
+    if (blocked.some((keyword) => src.includes(keyword))) return false;
+
+    return [
+      "ca-phe-nguyen-chat-signature",
+      "ca-phe-nguyen-chat-taynguyensoul",
+      "ca-phe-nguyen-chat-1",
+      "ca-phe-nguyen-chat-2",
+      "ca-phe-nguyen-chat-4",
+      "ca-phe-nguyen-chat-5",
+      "ca-phe-nguyen-chat-6",
+      "ca-phe-nguyen-chat-7",
+      "ca-phe-nguyen-chat-8",
+      "maxresdefault",
+      "/signature.png",
+      "/2025/06/2.png",
+      "ly-ca-phe-co-can-go"
+    ].some((keyword) => src.includes(keyword));
+  }
+
+  function normalizeSignatureGalleryMedia() {
+    if (!isSignatureProductPage()) return;
+    const gallery = document.querySelector(".product-gallery");
+    if (!gallery) return;
+    const thumbs = Array.from(gallery.querySelectorAll("[data-gallery-media]"));
+    thumbs.forEach((button) => {
+      if (!isAllowedSignatureMedia(button)) button.remove();
+    });
+
+    const remaining = Array.from(gallery.querySelectorAll("[data-gallery-media]"));
+    remaining.forEach((button, index) => {
+      button.dataset.galleryIndex = String(index);
+      button.classList.toggle("selected", index === 0);
+    });
+
+    const firstImage = remaining.find((button) => (button.dataset.mediaType || "image") === "image") || remaining[0];
+    if (firstImage) {
+      remaining.forEach((button) => button.classList.remove("selected"));
+      firstImage.classList.add("selected");
+      selectGalleryMedia(firstImage, { muted: true });
+    }
+  }
+
   function init() {
     attachStylesheet();
     collectProducts();
@@ -1401,6 +1471,7 @@
     hydrateOrderSuccessExperience();
     hydrateProductReviews();
     buildCommerceShell();
+    normalizeSignatureGalleryMedia();
     renderCheckoutPage();
     normalizeVisibleText();
     rewriteOriginLinks();
