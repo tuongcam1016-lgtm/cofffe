@@ -1087,6 +1087,13 @@ export default {
         });
       }
 
+      if (url.pathname === "/admin/login" && request.method === "GET") {
+        if (!getAdminSecret(env)) {
+          return html(renderLoginPro("ADMIN_PASSWORD is not configured."), 503);
+        }
+        return html(renderLoginPro());
+      }
+
       if (url.pathname === "/admin/login" && request.method === "POST") {
         return await handleAdminLogin(request, env);
       }

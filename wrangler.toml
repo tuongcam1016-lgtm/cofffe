@@ -1,4 +1,4 @@
-name = "taynguyensoul-clone"
+name = "cofffe"
 compatibility_date = "2026-05-16"
 main = "public/_worker.js"
 
@@ -11,7 +11,6 @@ binding = "ASSETS"
 # Variable name: ORDERS_KV
 # KV namespace: ORDERS_KV
 #
-# If deploying with Wrangler instead of Dashboard, uncomment and replace the id:
-# [[kv_namespaces]]
-# binding = "ORDERS_KV"
-# id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"
+[[kv_namespaces]]
+binding = "ORDERS_KV"
+id = "e1e6e6e645044fbe87145c39e1246310"
